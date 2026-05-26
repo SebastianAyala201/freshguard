@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="3">
+    <title>FreshGuard - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid #00d4ff;
+            margin-bottom: 30px;
+        }
+
+        header h1 { color: #00d4ff; font-size: 2.5em; }
+        header p  { color: #aaa; margin-top: 5px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto 30px auto;
+        }
+
+        .card {
+            background: #16213e;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #0f3460;
+        }
+
+        .card .icono { font-size: 2em; margin-bottom: 10px; }
+        .card .label { color: #aaa; font-size: 0.9em; margin-bottom: 10px; }
+        .card .valor { font-size: 2em; font-weight: bold; color: #00d4ff; }
+
+        .alerta-box {
+            max-width: 900px;
+            margin: 0 auto 30px auto;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            {% if datos.alerta == 'CRITICO' %}
+                background: #FF0000;
+            {% elif datos.alerta == 'ADVERTENCIA' %}
+                background: #FFA500;
+            {% else %}
+                background: #00CC00;
+            {% endif %}
+        }
+
+        .historial {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #0f3460;
+        }
+
+        .historial h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        th {
+            background: #0f3460;
+            padding: 10px;
+            text-align: center;
+        }
+
+        td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .NORMAL      { color: #00CC00; font-weight: bold; }
+        .ADVERTENCIA { color: #FFA500; font-weight: bold; }
+        .CRITICO     { color: #FF0000; font-weight: bold; }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #555;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🍃 FreshGuard</h1>
+    <p>Sistema IoT Autónomo de Monitoreo de Conservación de Alimentos</p>
+    <p>Universidad Nacional Mayor de San Marcos — 2026</p>
+</header>
+
+<!-- ESTADO ACTUAL -->
+<div class="alerta-box">
+    {% if datos.alerta == 'CRITICO' %}
+        🔴 CRÍTICO — Deterioro avanzado detectado
+    {% elif datos.alerta == 'ADVERTENCIA' %}
+        🟡 ADVERTENCIA — Inicio de deterioro detectado
+    {% elif datos.alerta == 'NORMAL' %}
+        🟢 NORMAL — Condiciones óptimas de conservación
+    {% else %}
+        ⚪ Esperando datos del sensor...
+    {% endif %}
+</div>
+
+<!-- TARJETAS DE SENSORES -->
+<div class="grid">
+    <div class="card">
+        <div class="icono">🌡️</div>
+        <div class="label">Temperatura</div>
+        <div class="valor">{{ datos.temperatura }} °C</div>
+    </div>
+
+    <div class="card">
+        <div class="icono">💧</div>
+        <div class="label">Humedad</div>
+        <div class="valor">{{ datos.humedad }} %</div>
+    </div>
+
+    <div class="card">
+        <div class="icono">🏭</div>
+        <div class="label">MQ-135 CO2/Gases</div>
+        <div class="valor">{{ datos.mq135 }}</div>
+    </div>
+
+    <div class="card">
+        <div class="icono">⚗️</div>
+        <div class="label">MQ-137 Amoníaco</div>
+        <div class="valor">{{ datos.mq137 }}</div>
+    </div>
+
+    <div class="card">
+        <div class="icono">📡</div>
+        <div class="label">Nodo</div>
+        <div class="valor" style="font-size:0.9em">{{ datos.nodo }}</div>
+    </div>
+
+    <div class="card">
+        <div class="icono">🕐</div>
+        <div class="label">Última lectura</div>
+        <div class="valor" style="font-size:0.8em">{{ datos.timestamp }}</div>
+    </div>
+</div>
+
+<!-- HISTORIAL -->
+<div class="historial">
+    <h2>📊 Historial de Lecturas</h2>
+    {% if historial %}
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Temp °C</th>
+            <th>Humedad %</th>
+            <th>MQ-135</th>
+            <th>MQ-137</th>
+            <th>Estado</th>
+        </tr>
+        {% for lectura in historial|reverse %}
+        <tr>
+            <td>{{ lectura.timestamp }}</td>
+            <td>{{ lectura.temperatura }}</td>
+            <td>{{ lectura.humedad }}</td>
+            <td>{{ lectura.mq135 }}</td>
+            <td>{{ lectura.mq137 }}</td>
+            <td class="{{ lectura.alerta }}">{{ lectura.alerta }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p style="text-align:center;color:#aaa">Sin datos aún — esperando lecturas del ESP32</p>
+    {% endif %}
+</div>
+
+<footer>
+    <p>FreshGuard v1.0 — IoT + Autonomic Computing + Smart City</p>
+    <p>Actualiza cada 3 segundos</p>
+</footer>
+
+</body>
+</html>
