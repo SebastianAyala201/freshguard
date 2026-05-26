@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from config import UMBRAL_CRITICO, UMBRAL_ADVERTENCIA, API_KEY, NODO_ID, NODO_LUGAR
 
 app = Flask(__name__)
@@ -50,7 +51,9 @@ def recibir_datos():
         "mq135":       mq135,
         "mq137":       mq137,
         "alerta":      alerta,
-        "timestamp":   datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now(
+                        ZoneInfo("America/Lima")
+                    ).strftime("%Y-%m-%d %H:%M:%S"),
         "nodo":        NODO_ID,
         "lugar":       NODO_LUGAR
     }
