@@ -1,8 +1,8 @@
 # FreshGuard - Configuración general
 
 # Umbrales del sistema
-UMBRAL_CRITICO     = 700
-UMBRAL_ADVERTENCIA = 450
+UMBRAL_CRITICO     = 3500
+UMBRAL_ADVERTENCIA = 2000
 
 # API Key de seguridad
 API_KEY = "freshguard-2026-unmsm"
