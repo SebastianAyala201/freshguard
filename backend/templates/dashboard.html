@@ -30,7 +30,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto 30px auto;
         }
 
@@ -47,8 +47,8 @@
         .card .valor { font-size: 2em; font-weight: bold; color: #00d4ff; }
 
         .alerta-box {
-            max-width: 900px;
-            margin: 0 auto 30px auto;
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
             padding: 25px;
             border-radius: 15px;
             text-align: center;
@@ -63,8 +63,65 @@
             {% endif %}
         }
 
+        .indice-box {
+            max-width: 1000px;
+            margin: 0 auto 30px auto;
+            background: #16213e;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #0f3460;
+        }
+
+        .indice-titulo {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .indice-valor {
+            font-size: 3em;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .indice-barra-bg {
+            background: #0f3460;
+            border-radius: 10px;
+            height: 20px;
+            max-width: 600px;
+            margin: 0 auto 10px auto;
+            overflow: hidden;
+        }
+
+        .indice-barra {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s;
+            {% if datos.indice_frescura >= 75 %}
+                background: #00CC00;
+                width: {{ datos.indice_frescura }}%;
+            {% elif datos.indice_frescura >= 50 %}
+                background: #FFA500;
+                width: {{ datos.indice_frescura }}%;
+            {% elif datos.indice_frescura >= 25 %}
+                background: #FF6600;
+                width: {{ datos.indice_frescura }}%;
+            {% else %}
+                background: #FF0000;
+                width: {{ datos.indice_frescura }}%;
+            {% endif %}
+        }
+
+        .etapa {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
         .historial {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: #16213e;
             border-radius: 15px;
@@ -81,7 +138,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
 
         th {
@@ -116,7 +173,7 @@
     <p>Universidad Nacional Mayor de San Marcos — 2026</p>
 </header>
 
-<!-- ESTADO ACTUAL -->
+<!-- ESTADO MAPE-K -->
 <div class="alerta-box">
     {% if datos.alerta == 'CRITICO' %}
         🔴 CRÍTICO — Deterioro avanzado detectado
@@ -127,6 +184,16 @@
     {% else %}
         ⚪ Esperando datos del sensor...
     {% endif %}
+</div>
+
+<!-- ÍNDICE DE FRESCURA -->
+<div class="indice-box">
+    <div class="indice-titulo">🍌 Índice de Frescura</div>
+    <div class="indice-valor">{{ datos.indice_frescura }} / 100</div>
+    <div class="indice-barra-bg">
+        <div class="indice-barra"></div>
+    </div>
+    <div class="etapa">{{ datos.etapa if datos.etapa else '⚪ Sin datos' }}</div>
 </div>
 
 <!-- TARJETAS DE SENSORES -->
@@ -150,9 +217,9 @@
     </div>
 
     <div class="card">
-        <div class="icono">⚗️</div>
-        <div class="label">MQ-137 Amoníaco</div>
-        <div class="valor">{{ datos.mq137 }}</div>
+        <div class="icono">🍷</div>
+        <div class="label">MQ-3 Etanol</div>
+        <div class="valor">{{ datos.mq3 }}</div>
     </div>
 
     <div class="card">
@@ -178,7 +245,9 @@
             <th>Temp °C</th>
             <th>Humedad %</th>
             <th>MQ-135</th>
-            <th>MQ-137</th>
+            <th>MQ-3</th>
+            <th>Índice</th>
+            <th>Etapa</th>
             <th>Estado</th>
         </tr>
         {% for lectura in historial|reverse %}
@@ -187,7 +256,9 @@
             <td>{{ lectura.temperatura }}</td>
             <td>{{ lectura.humedad }}</td>
             <td>{{ lectura.mq135 }}</td>
-            <td>{{ lectura.mq137 }}</td>
+            <td>{{ lectura.mq3 }}</td>
+            <td>{{ lectura.indice_frescura }}</td>
+            <td>{{ lectura.etapa }}</td>
             <td class="{{ lectura.alerta }}">{{ lectura.alerta }}</td>
         </tr>
         {% endfor %}
@@ -198,8 +269,8 @@
 </div>
 
 <footer>
-    <p>FreshGuard v1.0 — IoT + Autonomic Computing + Smart City</p>
-    <p>Actualiza cada 3 segundos</p>
+    <p>FreshGuard v2.0 — IoT + Data Science + Autonomic Computing + Smart City</p>
+    <p>🔄 Actualiza cada 3 segundos</p>
 </footer>
 
 </body>
