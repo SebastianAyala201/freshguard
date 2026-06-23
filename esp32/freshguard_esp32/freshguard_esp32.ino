@@ -7,8 +7,8 @@
 #define MQ135_PIN 34
 #define MQ3_PIN 32
 
-const char* ssid      = "SEBAS";
-const char* password  = "MateSebas";
+const char* ssid      = "PortugalCampeon2026";
+const char* password  = "sebas123";
 const char* serverURL = "https://freshguard-0ibl.onrender.com/api/datos";
 const char* apiKey    = "freshguard-2026-unmsm";
 

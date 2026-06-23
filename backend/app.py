@@ -29,12 +29,12 @@ def calcular_alerta(mq135, mq3):
 def calcular_indice(temperatura, humedad, mq135, mq3):
     co2_norm    = min((mq135 / 4095) * 100, 100)
     etanol_norm = min((mq3   / 4095) * 100, 100)
-    temp_pen    = max((temperatura - 25) * 5, 0)
-    hum_pen     = max((humedad - 70) * 3, 0)
+    temp_pen    = max((temperatura - 18) * 5, 0)  # FAO: 18°C
+    hum_pen     = max((85 - humedad) * 2, 0)       # FAO: 85% HR
 
     indice = 100 - (
-        co2_norm    * 0.35 +
-        etanol_norm * 0.35 +
+        co2_norm    * 0.30 +  # CO2
+        etanol_norm * 0.40 +  # Etanol más peso
         temp_pen    * 0.15 +
         hum_pen     * 0.15
     )
