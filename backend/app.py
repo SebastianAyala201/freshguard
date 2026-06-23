@@ -37,6 +37,9 @@ datos_actuales = {
     "lugar": NODO_LUGAR
 }
 
+# Almacena datos de múltiples nodos
+nodos_activos = {}
+
 def calcular_alerta(mq135, mq3):
     if mq135 > UMBRAL_CRITICO or mq3 > UMBRAL_CRITICO:
         return "CRITICO"
@@ -86,6 +89,21 @@ def recibir_datos():
     alerta      = calcular_alerta(mq135, mq3)
     etapa       = etapa_madurez(indice)
     timestamp   = datetime.now(ZoneInfo("America/Lima")).strftime("%Y-%m-%d %H:%M:%S")
+    nodo_id     = body.get("nodo", NODO_ID)
+    lugar       = body.get("lugar", NODO_LUGAR)
+
+    # Guardar datos por nodo
+    nodos_activos[nodo_id] = {
+        "temperatura":     temperatura,
+        "humedad":         humedad,
+        "mq135":           mq135,
+        "mq3":             mq3,
+        "indice_frescura": indice,
+        "etapa":           etapa,
+        "alerta":          alerta,
+        "timestamp":       timestamp,
+        "lugar":           lugar
+    }
 
     datos_actuales = {
         "temperatura":     temperatura,
@@ -96,8 +114,8 @@ def recibir_datos():
         "etapa":           etapa,
         "alerta":          alerta,
         "timestamp":       timestamp,
-        "nodo":            NODO_ID,
-        "lugar":           NODO_LUGAR
+        "nodo":            nodo_id,
+        "lugar":           lugar
     }
 
     # Guardar en base de datos SQLite
@@ -110,13 +128,13 @@ def recibir_datos():
         indice      = indice,
         etapa       = etapa,
         alerta      = alerta,
-        nodo        = NODO_ID,
-        lugar       = NODO_LUGAR
+        nodo        = nodo_id,
+        lugar       = lugar
     )
     db.session.add(lectura)
     db.session.commit()
 
-    print(f"[{timestamp}] {alerta} | IF:{indice} | {etapa} | T:{temperatura}°C H:{humedad}% MQ135:{mq135} MQ3:{mq3}")
+    print(f"[{timestamp}] {nodo_id} | {alerta} | IF:{indice} | {etapa} | T:{temperatura}°C H:{humedad}%")
     return jsonify({"status": "ok", "alerta": alerta, "indice_frescura": indice}), 200
 
 # ─── CAPA DE APLICACIÓN ────────────────────────
@@ -124,19 +142,20 @@ def recibir_datos():
 def dashboard():
     lecturas = Lectura.query.order_by(Lectura.id.desc()).limit(10).all()
     historial = [{
-        "timestamp":   l.timestamp,
-        "temperatura": l.temperatura,
-        "humedad":     l.humedad,
-        "mq135":       l.mq135,
-        "mq3":         l.mq3,
+        "timestamp":       l.timestamp,
+        "temperatura":     l.temperatura,
+        "humedad":         l.humedad,
+        "mq135":           l.mq135,
+        "mq3":             l.mq3,
         "indice_frescura": l.indice,
-        "etapa":       l.etapa,
-        "alerta":      l.alerta
+        "etapa":           l.etapa,
+        "alerta":          l.alerta
     } for l in lecturas]
 
     return render_template('dashboard.html',
                          datos=datos_actuales,
-                         historial=historial)
+                         historial=historial,
+                         nodos=nodos_activos)
 
 @app.route('/api/estado', methods=['GET'])
 def obtener_estado():

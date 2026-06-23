@@ -73,18 +73,8 @@
             border: 1px solid #0f3460;
         }
 
-        .indice-titulo {
-            color: #aaa;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-
-        .indice-valor {
-            font-size: 3em;
-            font-weight: bold;
-            color: #00d4ff;
-            margin-bottom: 10px;
-        }
+        .indice-titulo { color: #aaa; font-size: 0.9em; margin-bottom: 10px; }
+        .indice-valor  { font-size: 3em; font-weight: bold; color: #00d4ff; margin-bottom: 10px; }
 
         .indice-barra-bg {
             background: #0f3460;
@@ -98,7 +88,6 @@
         .indice-barra {
             height: 100%;
             border-radius: 10px;
-            transition: width 0.5s;
             {% if datos.indice_frescura >= 75 %}
                 background: #00CC00;
                 width: {{ datos.indice_frescura }}%;
@@ -114,22 +103,18 @@
             {% endif %}
         }
 
-        .etapa {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 5px;
-        }
+        .etapa { font-size: 1.2em; font-weight: bold; margin-top: 5px; }
 
-        .historial {
+        .seccion {
             max-width: 1000px;
-            margin: 0 auto;
+            margin: 0 auto 30px auto;
             background: #16213e;
             border-radius: 15px;
             padding: 20px;
             border: 1px solid #0f3460;
         }
 
-        .historial h2 {
+        .seccion h2 {
             color: #00d4ff;
             margin-bottom: 15px;
             text-align: center;
@@ -156,6 +141,33 @@
         .NORMAL      { color: #00CC00; font-weight: bold; }
         .ADVERTENCIA { color: #FFA500; font-weight: bold; }
         .CRITICO     { color: #FF0000; font-weight: bold; }
+        .SIN_DATOS   { color: #aaa; }
+
+        .nodo-card {
+            background: #0f3460;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nodo-info { text-align: left; }
+        .nodo-nombre { font-weight: bold; color: #00d4ff; }
+        .nodo-lugar  { color: #aaa; font-size: 0.85em; }
+        .nodo-tiempo { color: #555; font-size: 0.8em; }
+
+        .badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .badge-NORMAL      { background: #00CC00; color: white; }
+        .badge-ADVERTENCIA { background: #FFA500; color: white; }
+        .badge-CRITICO     { background: #FF0000; color: white; }
 
         footer {
             text-align: center;
@@ -188,7 +200,7 @@
 
 <!-- ÍNDICE DE FRESCURA -->
 <div class="indice-box">
-    <div class="indice-titulo">🍌 Índice de Frescura</div>
+    <div class="indice-titulo">🍌 Índice de Frescura (FAO validated)</div>
     <div class="indice-valor">{{ datos.indice_frescura }} / 100</div>
     <div class="indice-barra-bg">
         <div class="indice-barra"></div>
@@ -224,7 +236,7 @@
 
     <div class="card">
         <div class="icono">📡</div>
-        <div class="label">Nodo</div>
+        <div class="label">Nodo activo</div>
         <div class="valor" style="font-size:0.9em">{{ datos.nodo }}</div>
     </div>
 
@@ -235,9 +247,36 @@
     </div>
 </div>
 
+<!-- SMART CITY — NODOS DISTRIBUIDOS -->
+<div class="seccion">
+    <h2>🏙️ Red FreshGuard — Smart City Lima</h2>
+    {% if nodos %}
+        {% for nodo_id, nodo in nodos.items() %}
+        <div class="nodo-card">
+            <div class="nodo-info">
+                <div class="nodo-nombre">📡 {{ nodo_id }}</div>
+                <div class="nodo-lugar">📍 {{ nodo.lugar }}</div>
+                <div class="nodo-tiempo">🕐 {{ nodo.timestamp }}</div>
+                <div style="margin-top:5px; font-size:0.85em">
+                    🌡️ {{ nodo.temperatura }}°C &nbsp;
+                    💧 {{ nodo.humedad }}% &nbsp;
+                    🍌 IF: {{ nodo.indice_frescura }}
+                </div>
+            </div>
+            <div>
+                <span class="badge badge-{{ nodo.alerta }}">{{ nodo.alerta }}</span>
+                <div style="margin-top:5px; font-size:0.8em">{{ nodo.etapa }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align:center;color:#aaa">Sin nodos activos — esperando conexiones</p>
+    {% endif %}
+</div>
+
 <!-- HISTORIAL -->
-<div class="historial">
-    <h2>📊 Historial de Lecturas</h2>
+<div class="seccion">
+    <h2>📊 Historial de Lecturas (SQLite)</h2>
     {% if historial %}
     <table>
         <tr>
@@ -250,7 +289,7 @@
             <th>Etapa</th>
             <th>Estado</th>
         </tr>
-        {% for lectura in historial|reverse %}
+        {% for lectura in historial %}
         <tr>
             <td>{{ lectura.timestamp }}</td>
             <td>{{ lectura.temperatura }}</td>
@@ -269,8 +308,8 @@
 </div>
 
 <footer>
-    <p>FreshGuard v2.0 — IoT + Data Science + Autonomic Computing + Smart City</p>
-    <p>🔄 Actualiza cada 3 segundos</p>
+    <p>FreshGuard v3.0 — IoT + Data Science + Autonomic Computing + Smart City</p>
+    <p>🔄 Actualiza cada 3 segundos | 🗄️ SQLite | 🏙️ Smart City Lima</p>
 </footer>
 
 </body>
