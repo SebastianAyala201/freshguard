@@ -1,124 +1,212 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="3">
+    <meta http-equiv="refresh" content="5">
     <title>FreshGuard - Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        :root[data-theme="light"] {
+            --bg: #f0f4f0;
+            --bg2: #ffffff;
+            --bg3: #e8f5e9;
+            --text: #1a2e1a;
+            --text2: #555;
+            --accent: #2e7d32;
+            --accent2: #81c784;
+            --border: #c8e6c9;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0d1b0d;
+            --bg2: #1a2e1a;
+            --bg3: #0f3460;
+            --text: #e8f5e9;
+            --text2: #aaa;
+            --accent: #81c784;
+            --accent2: #00d4ff;
+            --border: #2e7d32;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #1a1a2e;
-            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             padding: 20px;
         }
 
         header {
             text-align: center;
-            padding: 20px;
-            border-bottom: 2px solid #00d4ff;
-            margin-bottom: 30px;
-        }
-
-        header h1 { color: #00d4ff; font-size: 2.5em; }
-        header p  { color: #aaa; margin-top: 5px; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto 30px auto;
-        }
-
-        .card {
-            background: #16213e;
-            border-radius: 15px;
             padding: 25px;
-            text-align: center;
-            border: 1px solid #0f3460;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 30px;
+            position: relative;
         }
 
-        .card .icono { font-size: 2em; margin-bottom: 10px; }
-        .card .label { color: #aaa; font-size: 0.9em; margin-bottom: 10px; }
-        .card .valor { font-size: 2em; font-weight: bold; color: #00d4ff; }
+        header h1 { 
+            color: var(--accent); 
+            font-size: 2.5em;
+            letter-spacing: 2px;
+        }
+
+        header p { color: var(--text2); margin-top: 5px; }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg2);
+            border: 2px solid var(--accent);
+            border-radius: 25px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .theme-toggle:hover { background: var(--accent); color: white; }
 
         .alerta-box {
             max-width: 1000px;
             margin: 0 auto 20px auto;
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             text-align: center;
-            font-size: 1.8em;
+            font-size: 1.5em;
             font-weight: bold;
+            color: white;
             {% if datos.alerta == 'CRITICO' %}
-                background: #FF0000;
+                background: linear-gradient(135deg, #c62828, #e53935);
             {% elif datos.alerta == 'ADVERTENCIA' %}
-                background: #FFA500;
+                background: linear-gradient(135deg, #e65100, #ff6d00);
             {% else %}
-                background: #00CC00;
+                background: linear-gradient(135deg, #1b5e20, #2e7d32);
             {% endif %}
+            box-shadow: var(--card-shadow);
         }
 
         .indice-box {
             max-width: 1000px;
-            margin: 0 auto 30px auto;
-            background: #16213e;
+            margin: 0 auto 25px auto;
+            background: var(--bg2);
             border-radius: 15px;
             padding: 25px;
             text-align: center;
-            border: 1px solid #0f3460;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
         }
 
-        .indice-titulo { color: #aaa; font-size: 0.9em; margin-bottom: 10px; }
-        .indice-valor  { font-size: 3em; font-weight: bold; color: #00d4ff; margin-bottom: 10px; }
+        .indice-titulo { color: var(--text2); font-size: 0.9em; margin-bottom: 8px; }
+        .indice-valor  { font-size: 3.5em; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
 
         .indice-barra-bg {
-            background: #0f3460;
+            background: var(--bg3);
             border-radius: 10px;
-            height: 20px;
+            height: 22px;
             max-width: 600px;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 12px auto;
             overflow: hidden;
         }
 
         .indice-barra {
             height: 100%;
             border-radius: 10px;
+            transition: width 1s ease;
             {% if datos.indice_frescura >= 75 %}
-                background: #00CC00;
+                background: linear-gradient(90deg, #2e7d32, #81c784);
                 width: {{ datos.indice_frescura }}%;
             {% elif datos.indice_frescura >= 50 %}
-                background: #FFA500;
+                background: linear-gradient(90deg, #f57f17, #ffca28);
                 width: {{ datos.indice_frescura }}%;
             {% elif datos.indice_frescura >= 25 %}
-                background: #FF6600;
+                background: linear-gradient(90deg, #e65100, #ff6d00);
                 width: {{ datos.indice_frescura }}%;
             {% else %}
-                background: #FF0000;
+                background: linear-gradient(90deg, #b71c1c, #e53935);
                 width: {{ datos.indice_frescura }}%;
             {% endif %}
         }
 
-        .etapa { font-size: 1.2em; font-weight: bold; margin-top: 5px; }
+        .etapa { font-size: 1.3em; font-weight: bold; color: var(--text); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto 25px auto;
+        }
+
+        .card {
+            background: var(--bg2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s;
+        }
+
+        .card:hover { transform: translateY(-3px); }
+        .card .icono { font-size: 1.8em; margin-bottom: 8px; }
+        .card .label { color: var(--text2); font-size: 0.85em; margin-bottom: 8px; }
+        .card .valor { font-size: 1.8em; font-weight: bold; color: var(--accent); }
 
         .seccion {
             max-width: 1000px;
-            margin: 0 auto 30px auto;
-            background: #16213e;
+            margin: 0 auto 25px auto;
+            background: var(--bg2);
             border-radius: 15px;
             padding: 20px;
-            border: 1px solid #0f3460;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
         }
 
         .seccion h2 {
-            color: #00d4ff;
+            color: var(--accent);
             margin-bottom: 15px;
-            text-align: center;
+            font-size: 1.2em;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
         }
+
+        .nodo-card {
+            background: var(--bg3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .nodo-nombre { font-weight: bold; color: var(--accent); }
+        .nodo-lugar  { color: var(--text2); font-size: 0.85em; }
+        .nodo-tiempo { color: var(--text2); font-size: 0.8em; }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            color: white;
+        }
+
+        .badge-NORMAL      { background: #2e7d32; }
+        .badge-ADVERTENCIA { background: #e65100; }
+        .badge-CRITICO     { background: #c62828; }
+
+        #mapa { height: 300px; border-radius: 10px; margin-top: 10px; }
 
         table {
             width: 100%;
@@ -127,156 +215,168 @@
         }
 
         th {
-            background: #0f3460;
+            background: var(--bg3);
             padding: 10px;
             text-align: center;
+            color: var(--accent);
         }
 
         td {
             padding: 8px;
             text-align: center;
-            border-bottom: 1px solid #0f3460;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
         }
 
-        .NORMAL      { color: #00CC00; font-weight: bold; }
-        .ADVERTENCIA { color: #FFA500; font-weight: bold; }
-        .CRITICO     { color: #FF0000; font-weight: bold; }
-        .SIN_DATOS   { color: #aaa; }
+        .NORMAL      { color: #2e7d32; font-weight: bold; }
+        .ADVERTENCIA { color: #e65100; font-weight: bold; }
+        .CRITICO     { color: #c62828; font-weight: bold; }
 
-        .nodo-card {
-            background: #0f3460;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto 25px auto;
         }
 
-        .nodo-info { text-align: left; }
-        .nodo-nombre { font-weight: bold; color: #00d4ff; }
-        .nodo-lugar  { color: #aaa; font-size: 0.85em; }
-        .nodo-tiempo { color: #555; font-size: 0.8em; }
-
-        .badge {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9em;
+        .chart-card {
+            background: var(--bg2);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
         }
 
-        .badge-NORMAL      { background: #00CC00; color: white; }
-        .badge-ADVERTENCIA { background: #FFA500; color: white; }
-        .badge-CRITICO     { background: #FF0000; color: white; }
+        .chart-card h3 { color: var(--accent); margin-bottom: 15px; font-size: 1em; }
 
         footer {
             text-align: center;
             margin-top: 30px;
-            color: #555;
+            color: var(--text2);
             font-size: 0.8em;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 600px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 1.8em; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>🍃 FreshGuard</h1>
-    <p>Sistema IoT Autónomo de Monitoreo de Conservación de Alimentos</p>
+    <h1>FreshGuard</h1>
+    <p>Sistema IoT Autonomo de Monitoreo de Conservacion de Alimentos</p>
     <p>Universidad Nacional Mayor de San Marcos — 2026</p>
+    <button class="theme-toggle" onclick="toggleTheme()">Modo Oscuro</button>
 </header>
 
 <!-- ESTADO MAPE-K -->
 <div class="alerta-box">
     {% if datos.alerta == 'CRITICO' %}
-        🔴 CRÍTICO — Deterioro avanzado detectado
+        Estado CRITICO — Deterioro avanzado detectado
     {% elif datos.alerta == 'ADVERTENCIA' %}
-        🟡 ADVERTENCIA — Inicio de deterioro detectado
+        Estado ADVERTENCIA — Inicio de deterioro detectado
     {% elif datos.alerta == 'NORMAL' %}
-        🟢 NORMAL — Condiciones óptimas de conservación
+        Estado NORMAL — Condiciones optimas de conservacion
     {% else %}
-        ⚪ Esperando datos del sensor...
+        Esperando datos del sensor...
     {% endif %}
 </div>
 
-<!-- ÍNDICE DE FRESCURA -->
+<!-- INDICE DE FRESCURA -->
 <div class="indice-box">
-    <div class="indice-titulo">🍌 Índice de Frescura (FAO validated)</div>
+    <div class="indice-titulo">Indice de Frescura (Validado FAO)</div>
     <div class="indice-valor">{{ datos.indice_frescura }} / 100</div>
     <div class="indice-barra-bg">
         <div class="indice-barra"></div>
     </div>
-    <div class="etapa">{{ datos.etapa if datos.etapa else '⚪ Sin datos' }}</div>
+    <div class="etapa">{{ datos.etapa if datos.etapa else 'Sin datos' }}</div>
 </div>
 
-<!-- TARJETAS DE SENSORES -->
+<!-- TARJETAS -->
 <div class="grid">
     <div class="card">
         <div class="icono">🌡️</div>
         <div class="label">Temperatura</div>
         <div class="valor">{{ datos.temperatura }} °C</div>
     </div>
-
     <div class="card">
         <div class="icono">💧</div>
         <div class="label">Humedad</div>
         <div class="valor">{{ datos.humedad }} %</div>
     </div>
-
     <div class="card">
         <div class="icono">🏭</div>
-        <div class="label">MQ-135 CO2/Gases</div>
+        <div class="label">MQ-135 CO2</div>
         <div class="valor">{{ datos.mq135 }}</div>
     </div>
-
     <div class="card">
         <div class="icono">🍷</div>
         <div class="label">MQ-3 Etanol</div>
         <div class="valor">{{ datos.mq3 }}</div>
     </div>
-
     <div class="card">
         <div class="icono">📡</div>
-        <div class="label">Nodo activo</div>
+        <div class="label">Nodo</div>
         <div class="valor" style="font-size:0.9em">{{ datos.nodo }}</div>
     </div>
-
     <div class="card">
         <div class="icono">🕐</div>
-        <div class="label">Última lectura</div>
-        <div class="valor" style="font-size:0.8em">{{ datos.timestamp }}</div>
+        <div class="label">Ultima lectura</div>
+        <div class="valor" style="font-size:0.75em">{{ datos.timestamp }}</div>
     </div>
 </div>
 
-<!-- SMART CITY — NODOS DISTRIBUIDOS -->
+<!-- GRAFICAS -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3>Tendencia Indice de Frescura</h3>
+        <canvas id="chartIndice"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>Gases detectados</h3>
+        <canvas id="chartGases"></canvas>
+    </div>
+</div>
+
+<!-- MAPA SMART CITY -->
 <div class="seccion">
-    <h2>🏙️ Red FreshGuard — Smart City Lima</h2>
+    <h2>Red FreshGuard — Smart City Lima</h2>
+    <div id="mapa"></div>
+</div>
+
+<!-- NODOS -->
+<div class="seccion">
+    <h2>Nodos Activos</h2>
     {% if nodos %}
         {% for nodo_id, nodo in nodos.items() %}
         <div class="nodo-card">
-            <div class="nodo-info">
-                <div class="nodo-nombre">📡 {{ nodo_id }}</div>
-                <div class="nodo-lugar">📍 {{ nodo.lugar }}</div>
-                <div class="nodo-tiempo">🕐 {{ nodo.timestamp }}</div>
-                <div style="margin-top:5px; font-size:0.85em">
-                    🌡️ {{ nodo.temperatura }}°C &nbsp;
-                    💧 {{ nodo.humedad }}% &nbsp;
-                    🍌 IF: {{ nodo.indice_frescura }}
+            <div>
+                <div class="nodo-nombre">{{ nodo_id }}</div>
+                <div class="nodo-lugar">{{ nodo.lugar }}</div>
+                <div class="nodo-tiempo">{{ nodo.timestamp }}</div>
+                <div style="margin-top:5px; font-size:0.85em; color:var(--text2)">
+                    {{ nodo.temperatura }}°C &nbsp; {{ nodo.humedad }}% &nbsp; IF: {{ nodo.indice_frescura }}
                 </div>
             </div>
-            <div>
+            <div style="text-align:center">
                 <span class="badge badge-{{ nodo.alerta }}">{{ nodo.alerta }}</span>
-                <div style="margin-top:5px; font-size:0.8em">{{ nodo.etapa }}</div>
+                <div style="margin-top:5px; font-size:0.8em; color:var(--text2)">{{ nodo.etapa }}</div>
             </div>
         </div>
         {% endfor %}
     {% else %}
-        <p style="text-align:center;color:#aaa">Sin nodos activos — esperando conexiones</p>
+        <p style="text-align:center;color:var(--text2)">Sin nodos activos</p>
     {% endif %}
 </div>
 
 <!-- HISTORIAL -->
 <div class="seccion">
-    <h2>📊 Historial de Lecturas (SQLite)</h2>
+    <h2>Historial de Lecturas (SQLite)</h2>
     {% if historial %}
     <table>
         <tr>
@@ -285,7 +385,7 @@
             <th>Humedad %</th>
             <th>MQ-135</th>
             <th>MQ-3</th>
-            <th>Índice</th>
+            <th>Indice</th>
             <th>Etapa</th>
             <th>Estado</th>
         </tr>
@@ -303,14 +403,135 @@
         {% endfor %}
     </table>
     {% else %}
-    <p style="text-align:center;color:#aaa">Sin datos aún — esperando lecturas del ESP32</p>
+    <p style="text-align:center;color:var(--text2)">Sin datos aun</p>
     {% endif %}
 </div>
 
 <footer>
-    <p>FreshGuard v3.0 — IoT + Data Science + Autonomic Computing + Smart City</p>
-    <p>🔄 Actualiza cada 3 segundos | 🗄️ SQLite | 🏙️ Smart City Lima</p>
+    <p>FreshGuard v4.0 — IoT + Data Science + Autonomic Computing + Smart City</p>
+    <p>Actualiza cada 5 segundos | SQLite | Smart City Lima</p>
 </footer>
+
+<script>
+// Dark mode toggle
+function toggleTheme() {
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-toggle');
+    if (html.getAttribute('data-theme') === 'light') {
+        html.setAttribute('data-theme', 'dark');
+        btn.textContent = 'Modo Claro';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        html.setAttribute('data-theme', 'light');
+        btn.textContent = 'Modo Oscuro';
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+// Restaurar tema guardado
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.querySelector('.theme-toggle').textContent = 
+        savedTheme === 'dark' ? 'Modo Claro' : 'Modo Oscuro';
+}
+
+// Datos del historial para graficas
+const historial = {{ historial | tojson }};
+const labels    = historial.map(h => h.timestamp.slice(11,16)).reverse();
+const indices   = historial.map(h => h.indice_frescura).reverse();
+const mq135data = historial.map(h => h.mq135).reverse();
+const mq3data   = historial.map(h => h.mq3).reverse();
+
+// Grafica Indice de Frescura
+const ctxIndice = document.getElementById('chartIndice').getContext('2d');
+new Chart(ctxIndice, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Indice de Frescura',
+            data: indices,
+            borderColor: '#2e7d32',
+            backgroundColor: 'rgba(46,125,50,0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Grafica Gases
+const ctxGases = document.getElementById('chartGases').getContext('2d');
+new Chart(ctxGases, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'MQ-135 CO2',
+                data: mq135data,
+                borderColor: '#1565c0',
+                backgroundColor: 'rgba(21,101,192,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3
+            },
+            {
+                label: 'MQ-3 Etanol',
+                data: mq3data,
+                borderColor: '#c62828',
+                backgroundColor: 'rgba(198,40,40,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Mapa de Lima con Leaflet
+const mapa = L.map('mapa').setView([-12.0464, -77.0428], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'OpenStreetMap'
+}).addTo(mapa);
+
+const nodos = [
+    { nombre: 'ESP32-FRESHGUARD-01', lugar: 'Laboratorio UNMSM', lat: -12.0583, lng: -77.0836, alerta: '{{ datos.alerta }}' },
+    { nombre: 'ESP32-FRESHGUARD-02', lugar: 'Mercado Central Lima', lat: -12.0536, lng: -77.0283, alerta: 'NORMAL' },
+    { nombre: 'ESP32-FRESHGUARD-03', lugar: 'Mercado Mayorista Lima', lat: -12.0700, lng: -77.0820, alerta: 'NORMAL' },
+    { nombre: 'ESP32-FRESHGUARD-04', lugar: 'Centro Distribucion Norte', lat: -11.9800, lng: -77.0600, alerta: 'NORMAL' },
+];
+
+const colores = { NORMAL: '#2e7d32', ADVERTENCIA: '#e65100', CRITICO: '#c62828' };
+
+nodos.forEach(n => {
+    const icono = L.divIcon({
+        html: `<div style="background:${colores[n.alerta]};width:16px;height:16px;border-radius:50%;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3)"></div>`,
+        iconSize: [16, 16],
+        className: ''
+    });
+    L.marker([n.lat, n.lng], { icon: icono })
+     .addTo(mapa)
+     .bindPopup(`<b>${n.nombre}</b><br>${n.lugar}<br>Estado: <b>${n.alerta}</b>`);
+});
+</script>
 
 </body>
 </html>
