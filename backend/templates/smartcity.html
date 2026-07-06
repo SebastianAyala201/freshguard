@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="10">
+    <title>FreshGuard - Smart City</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        :root[data-theme="light"] {
+            --bg: #f5f5f5;
+            --bg2: #ffffff;
+            --bg3: #e8f5e9;
+            --text: #1a2e1a;
+            --text2: #555;
+            --accent: #2e7d32;
+            --border: #c8e6c9;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        :root[data-theme="dark"] {
+            --bg: #0d1b0d;
+            --bg2: #1a2e1a;
+            --bg3: #0f3460;
+            --text: #e8f5e9;
+            --text2: #aaa;
+            --accent: #81c784;
+            --border: #2e7d32;
+            --shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        nav {
+            background: var(--bg2);
+            border-bottom: 2px solid var(--accent);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; }
+        .nav-logo img { height: 35px; }
+        .nav-logo span { font-size: 1.3em; font-weight: bold; color: var(--accent); }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a { color: var(--text); text-decoration: none; font-size: 0.95em; padding: 6px 12px; border-radius: 8px; transition: background 0.2s; }
+        .nav-links a:hover { background: var(--bg3); }
+        .nav-links a.active { background: var(--accent); color: white; }
+        .theme-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; cursor: pointer; color: var(--text); font-size: 0.85em; }
+        .page-header {
+            background: var(--bg2);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+        .page-header h1 { color: var(--accent); font-size: 2em; margin-bottom: 8px; }
+        .page-header p { color: var(--text2); }
+        .contenido {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px 40px 20px;
+        }
+        .seccion {
+            background: var(--bg2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .seccion h2 { color: var(--accent); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        #mapa { height: 450px; border-radius: 10px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: var(--bg2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .stat-numero { font-size: 2.5em; font-weight: bold; color: var(--accent); }
+        .stat-label { color: var(--text2); font-size: 0.85em; margin-top: 5px; }
+        .nodos-lista { display: flex; flex-direction: column; gap: 12px; }
+        .nodo-item {
+            background: var(--bg3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+        .nodo-info { flex: 1; }
+        .nodo-nombre { font-weight: bold; color: var(--accent); margin-bottom: 3px; }
+        .nodo-lugar { color: var(--text2); font-size: 0.85em; }
+        .nodo-metricas {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .metrica { text-align: center; }
+        .metrica .valor { font-weight: bold; color: var(--text); font-size: 1.1em; }
+        .metrica .label { color: var(--text2); font-size: 0.75em; }
+        .badge { padding: 6px 14px; border-radius: 15px; font-weight: bold; font-size: 0.85em; color: white; }
+        .badge-NORMAL { background: #2e7d32; }
+        .badge-ADVERTENCIA { background: #e65100; }
+        .badge-CRITICO { background: #c62828; }
+        .leyenda {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .leyenda-item { display: flex; align-items: center; gap: 8px; font-size: 0.85em; color: var(--text2); }
+        .leyenda-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .smartcity-img { width: 100%; border-radius: 10px; margin-top: 15px; max-height: 300px; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-logo">
+        <img src="/static/img/logo-freshguard.png" alt="FreshGuard">
+        <span>FreshGuard</span>
+    </div>
+    <div class="nav-links">
+        <a href="/">Inicio</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/smartcity" class="active">Smart City</a>
+        <a href="/arquitectura">Arquitectura</a>
+        <a href="/literatura">Literatura</a>
+        <button class="theme-btn" onclick="toggleTheme()">Modo Oscuro</button>
+    </div>
+</nav>
+
+<div class="page-header">
+    <h1>Smart City Lima</h1>
+    <p>Red distribuida de monitoreo de conservacion de alimentos en mercados de Lima Metropolitana</p>
+</div>
+
+<div class="contenido">
+
+    <!-- ESTADISTICAS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-numero">{{ nodos|length }}</div>
+            <div class="stat-label">Nodos Activos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-numero" style="color:#2e7d32">
+                {{ nodos.values()|selectattr('alerta','eq','NORMAL')|list|length }}
+            </div>
+            <div class="stat-label">Nodos Normal</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-numero" style="color:#e65100">
+                {{ nodos.values()|selectattr('alerta','eq','ADVERTENCIA')|list|length }}
+            </div>
+            <div class="stat-label">Nodos Advertencia</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-numero" style="color:#c62828">
+                {{ nodos.values()|selectattr('alerta','eq','CRITICO')|list|length }}
+            </div>
+            <div class="stat-label">Nodos Critico</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-numero">Lima</div>
+            <div class="stat-label">Ciudad monitoreada</div>
+        </div>
+    </div>
+
+    <!-- MAPA -->
+    <div class="seccion">
+        <h2>Mapa de Nodos — Lima Metropolitana</h2>
+        <div id="mapa"></div>
+        <div class="leyenda">
+            <div class="leyenda-item">
+                <div class="leyenda-dot" style="background:#2e7d32"></div>
+                Normal
+            </div>
+            <div class="leyenda-item">
+                <div class="leyenda-dot" style="background:#e65100"></div>
+                Advertencia
+            </div>
+            <div class="leyenda-item">
+                <div class="leyenda-dot" style="background:#c62828"></div>
+                Critico
+            </div>
+            <div class="leyenda-item">
+                <div class="leyenda-dot" style="background:#1565c0"></div>
+                Nodo Real (UNMSM)
+            </div>
+        </div>
+    </div>
+
+    <!-- NODOS -->
+    <div class="seccion">
+        <h2>Estado de Nodos</h2>
+        <div class="nodos-lista">
+            {% if nodos %}
+                {% for nodo_id, nodo in nodos.items() %}
+                <div class="nodo-item">
+                    <div class="nodo-info">
+                        <div class="nodo-nombre">{{ nodo_id }}</div>
+                        <div class="nodo-lugar">{{ nodo.lugar }}</div>
+                        <div style="font-size:0.75em;color:var(--text2);margin-top:3px">{{ nodo.timestamp }}</div>
+                    </div>
+                    <div class="nodo-metricas">
+                        <div class="metrica">
+                            <div class="valor">{{ nodo.temperatura }}°C</div>
+                            <div class="label">Temp</div>
+                        </div>
+                        <div class="metrica">
+                            <div class="valor">{{ nodo.humedad }}%</div>
+                            <div class="label">Humedad</div>
+                        </div>
+                        <div class="metrica">
+                            <div class="valor">{{ nodo.indice_frescura }}</div>
+                            <div class="label">IF</div>
+                        </div>
+                        <div class="metrica">
+                            <div style="font-size:0.85em">{{ nodo.etapa }}</div>
+                            <div class="label">Etapa</div>
+                        </div>
+                        <span class="badge badge-{{ nodo.alerta }}">{{ nodo.alerta }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color:var(--text2);text-align:center">Sin nodos activos</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- IMAGEN SMART CITY -->
+    <div class="seccion">
+        <h2>Vision Smart City</h2>
+        <p style="color:var(--text2);margin-bottom:15px">
+            FreshGuard se enmarca en el dominio Smart Economy de Smart City segun Peralta et al. (2022),
+            aplicado a la optimizacion de la cadena de frio urbana en mercados y centros de distribucion
+            de alimentos de Lima Metropolitana. La arquitectura multi-nodo permite escalar el sistema
+            desde un nodo fisico hasta una red distribuida que cubra toda la ciudad.
+        </p>
+        <img src="/static/img/smartcity-lima.png" alt="Smart City Lima" class="smartcity-img">
+    </div>
+
+</div>
+
+<footer style="background:var(--bg2);border-top:2px solid var(--border);padding:20px;text-align:center;color:var(--text2);font-size:0.85em">
+    <p>FreshGuard v4.0 — IoT + Data Science + Autonomic Computing + Smart City</p>
+</footer>
+
+<script>
+// Dark mode
+function toggleTheme() {
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-btn');
+    if (html.getAttribute('data-theme') === 'light') {
+        html.setAttribute('data-theme', 'dark');
+        btn.textContent = 'Modo Claro';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        html.setAttribute('data-theme', 'light');
+        btn.textContent = 'Modo Oscuro';
+        localStorage.setItem('theme', 'light');
+    }
+}
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.querySelector('.theme-btn').textContent =
+        savedTheme === 'dark' ? 'Modo Claro' : 'Modo Oscuro';
+}
+
+// Mapa Lima
+const mapa = L.map('mapa').setView([-12.0464, -77.0428], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'OpenStreetMap'
+}).addTo(mapa);
+
+const nodos = [
+    { id: 'ESP32-FRESHGUARD-01', lugar: 'Laboratorio UNMSM - Lima Centro', lat: -12.0583, lng: -77.0836, alerta: '{{ datos_alerta if datos_alerta else "NORMAL" }}', real: true },
+    { id: 'ESP32-FRESHGUARD-02', lugar: 'Mercado La Parada - La Victoria', lat: -12.0669, lng: -77.0255, alerta: 'NORMAL', real: false },
+    { id: 'ESP32-FRESHGUARD-03', lugar: 'Mercado Caqueta - Rimac', lat: -12.0336, lng: -77.0411, alerta: 'NORMAL', real: false },
+    { id: 'ESP32-FRESHGUARD-04', lugar: 'Mercado Unicachi - SJL', lat: -11.9800, lng: -77.0050, alerta: 'NORMAL', real: false },
+    { id: 'ESP32-FRESHGUARD-05', lugar: 'Mercado Condevilla - SMP', lat: -11.9900, lng: -77.0600, alerta: 'NORMAL', real: false },
+    { id: 'ESP32-FRESHGUARD-06', lugar: 'Mercado Lurin - Lima Sur', lat: -12.2770, lng: -76.8690, alerta: 'NORMAL', real: false },
+];
+
+const colores = { NORMAL: '#2e7d32', ADVERTENCIA: '#e65100', CRITICO: '#c62828' };
+
+nodos.forEach(n => {
+    const color = n.real ? '#1565c0' : colores[n.alerta];
+    const icono = L.divIcon({
+        html: `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>`,
+        iconSize: [18, 18],
+        className: ''
+    });
+    L.marker([n.lat, n.lng], { icon: icono })
+     .addTo(mapa)
+     .bindPopup(`
+        <b>${n.id}</b><br>
+        ${n.lugar}<br>
+        Estado: <b style="color:${color}">${n.alerta}</b>
+        ${n.real ? '<br><i>Nodo fisico real</i>' : '<br><i>Nodo simulado</i>'}
+     `);
+});
+</script>
+
+</body>
+</html>

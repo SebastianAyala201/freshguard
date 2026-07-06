@@ -9,7 +9,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///freshguard.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# ─── MODELO DE BASE DE DATOS ──────────────────
 class Lectura(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     timestamp   = db.Column(db.String(30))
@@ -23,7 +22,6 @@ class Lectura(db.Model):
     nodo        = db.Column(db.String(30))
     lugar       = db.Column(db.String(50))
 
-# Datos actuales en memoria
 datos_actuales = {
     "temperatura": 0,
     "humedad": 0,
@@ -37,7 +35,6 @@ datos_actuales = {
     "lugar": NODO_LUGAR
 }
 
-# Almacena datos de múltiples nodos
 nodos_activos = {}
 
 def calcular_alerta(mq135, mq3):
@@ -52,7 +49,6 @@ def calcular_indice(temperatura, humedad, mq135, mq3):
     etanol_norm = min((mq3   / 4095) * 100, 100)
     temp_pen    = max((temperatura - 18) * 5, 0)
     hum_pen     = max((85 - humedad) * 2, 0)
-
     indice = 100 - (
         co2_norm    * 0.30 +
         etanol_norm * 0.40 +
@@ -92,7 +88,6 @@ def recibir_datos():
     nodo_id     = body.get("nodo", NODO_ID)
     lugar       = body.get("lugar", NODO_LUGAR)
 
-    # Guardar datos por nodo
     nodos_activos[nodo_id] = {
         "temperatura":     temperatura,
         "humedad":         humedad,
@@ -118,7 +113,6 @@ def recibir_datos():
         "lugar":           lugar
     }
 
-    # Guardar en base de datos SQLite
     lectura = Lectura(
         timestamp   = timestamp,
         temperatura = temperatura,
@@ -139,6 +133,24 @@ def recibir_datos():
 
 # ─── CAPA DE APLICACIÓN ────────────────────────
 @app.route('/')
+def index():
+    lecturas = Lectura.query.order_by(Lectura.id.desc()).limit(10).all()
+    historial = [{
+        "timestamp":       l.timestamp,
+        "temperatura":     l.temperatura,
+        "humedad":         l.humedad,
+        "mq135":           l.mq135,
+        "mq3":             l.mq3,
+        "indice_frescura": l.indice,
+        "etapa":           l.etapa,
+        "alerta":          l.alerta
+    } for l in lecturas]
+    return render_template('index.html',
+                         datos=datos_actuales,
+                         historial=historial,
+                         nodos=nodos_activos)
+
+@app.route('/dashboard')
 def dashboard():
     lecturas = Lectura.query.order_by(Lectura.id.desc()).limit(10).all()
     historial = [{
@@ -151,11 +163,23 @@ def dashboard():
         "etapa":           l.etapa,
         "alerta":          l.alerta
     } for l in lecturas]
-
     return render_template('dashboard.html',
                          datos=datos_actuales,
                          historial=historial,
                          nodos=nodos_activos)
+
+@app.route('/smartcity')
+def smartcity():
+    return render_template('smartcity.html',
+                         nodos=nodos_activos)
+
+@app.route('/arquitectura')
+def arquitectura():
+    return render_template('arquitectura.html')
+
+@app.route('/literatura')
+def literatura():
+    return render_template('literatura.html')
 
 @app.route('/api/estado', methods=['GET'])
 def obtener_estado():
