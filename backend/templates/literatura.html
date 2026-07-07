@@ -4,195 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreshGuard - Literatura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root[data-theme="light"] {
-            --bg: #f5f5f5;
-            --bg2: #ffffff;
-            --bg3: #e8f5e9;
-            --text: #1a2e1a;
-            --text2: #555;
-            --accent: #2e7d32;
-            --border: #c8e6c9;
-            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --bg: #F0F4EF; --bg2: #ffffff; --bg3: #e8f5e9;
+            --text: #16231C; --text2: #4B5D53;
+            --accent: #2e7d32; --border: #D8E3D6; --shadow: 0 4px 15px rgba(0,0,0,0.06);
         }
         :root[data-theme="dark"] {
-            --bg: #0d1b0d;
-            --bg2: #1a2e1a;
-            --bg3: #0f3460;
-            --text: #e8f5e9;
-            --text2: #aaa;
-            --accent: #81c784;
-            --border: #2e7d32;
-            --shadow: 0 4px 15px rgba(0,0,0,0.3);
+            --bg: #0F211A; --bg2: #172E24; --bg3: #1B3A2A;
+            --text: #E7F1EA; --text2: #9BB3A6;
+            --accent: #81c784; --border: #234433; --shadow: 0 4px 20px rgba(0,0,0,0.35);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        h1, h2 { font-family: 'Space Grotesk', sans-serif; }
+        .paper-numero, .paper-autores, .numero, .tag { font-family: 'JetBrains Mono', monospace; }
+        a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        .etiqueta-tecnica {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7em; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+        }
+        .etiqueta-tecnica::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        .panel { position: relative; background: var(--bg2); border-radius: 15px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .panel::before, .panel::after { content: ""; position: absolute; width: 12px; height: 12px; border-color: var(--accent); border-style: solid; }
+        .panel::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-radius: 6px 0 0 0; }
+        .panel::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-radius: 0 0 6px 0; }
 
         nav {
-            background: var(--bg2);
-            border-bottom: 2px solid var(--accent);
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow);
+            background: var(--bg2); border-bottom: 2px solid var(--accent); padding: 12px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
         }
         .nav-logo { display: flex; align-items: center; gap: 10px; }
         .nav-logo img { height: 35px; }
-        .nav-logo span { font-size: 1.3em; font-weight: bold; color: var(--accent); }
+        .nav-logo span { font-family: 'Space Grotesk', sans-serif; font-size: 1.3em; font-weight: 600; color: var(--accent); }
         .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-links a { color: var(--text); text-decoration: none; font-size: 0.95em; padding: 6px 12px; border-radius: 8px; }
+        .nav-links a { color: var(--text); text-decoration: none; font-size: 0.95em; padding: 6px 12px; border-radius: 8px; transition: background 0.2s; }
         .nav-links a:hover { background: var(--bg3); }
         .nav-links a.active { background: var(--accent); color: white; }
-        .theme-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; cursor: pointer; color: var(--text); font-size: 0.85em; }
+        .theme-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; cursor: pointer; color: var(--text); font-size: 0.85em; font-family: inherit; }
 
-        .page-header {
-            background: var(--bg2);
-            padding: 30px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 30px;
-        }
+        .page-header { background: var(--bg2); padding: 30px; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
         .page-header h1 { color: var(--accent); font-size: 2em; margin-bottom: 8px; }
         .page-header p { color: var(--text2); }
 
-        .contenido { max-width: 1000px; margin: 0 auto; padding: 0 20px 40px 20px; }
+        .contenido { max-width: 900px; margin: 0 auto; padding: 0 20px 40px 20px; }
 
-        .paper-card {
-            background: var(--bg2);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            border-left: 5px solid var(--accent);
-            box-shadow: var(--shadow);
-        }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 0 0 30px 0; }
+        .stat-mini { padding: 15px; text-align: center; }
+        .stat-mini .numero { font-size: 1.7em; font-weight: 600; color: var(--accent); }
+        .stat-mini .label  { font-size: 0.78em; color: var(--text2); margin-top: 3px; font-family: 'Inter', sans-serif; }
 
-        .paper-numero {
-            font-size: 0.8em;
-            color: var(--accent);
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+        .seccion-titulo { color: var(--accent); font-size: 1.3em; margin: 30px 0 16px 0; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
 
-        .paper-titulo {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: var(--text);
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
+        .paper-card { padding: 24px; margin-bottom: 18px; border-left: 4px solid var(--accent) !important; }
+        .paper-numero { font-size: 0.72em; color: var(--accent); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px; }
+        .paper-titulo { font-size: 1.08em; font-weight: 600; color: var(--text); margin-bottom: 8px; line-height: 1.4; font-family: 'Space Grotesk', sans-serif; }
+        .paper-autores { color: var(--text2); font-size: 0.82em; margin-bottom: 12px; line-height: 1.5; }
 
-        .paper-autores {
-            color: var(--text2);
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
+        .paper-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+        .tag { background: var(--bg3); border: 1px solid var(--border); border-radius: 15px; padding: 3px 11px; font-size: 0.7em; color: var(--accent); }
 
-        .paper-resumen {
-            color: var(--text2);
-            font-size: 0.9em;
-            line-height: 1.7;
-            margin-bottom: 15px;
-        }
+        .paper-resumen { color: var(--text2); font-size: 0.9em; line-height: 1.7; margin-bottom: 14px; }
 
         .paper-relevancia {
-            background: var(--bg3);
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 0.85em;
-            color: var(--text2);
-            margin-bottom: 12px;
+            background: var(--bg3); border-radius: 8px; padding: 12px 14px; font-size: 0.85em;
+            color: var(--text2); margin-bottom: 14px; border-left: 2px solid var(--accent);
         }
-
-        .paper-relevancia strong { color: var(--accent); }
-
-        .paper-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .tag {
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 4px 12px;
-            font-size: 0.8em;
-            color: var(--accent);
-        }
+        .paper-relevancia strong { color: var(--accent); font-family: 'Inter', sans-serif; }
 
         .paper-link {
-            display: inline-block;
-            color: var(--accent);
-            font-size: 0.85em;
-            text-decoration: none;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 5px 12px;
+            display: inline-flex; align-items: center; gap: 5px; color: var(--accent); font-size: 0.82em;
+            text-decoration: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 13px;
+            transition: background 0.15s ease, color 0.15s ease;
         }
-
         .paper-link:hover { background: var(--accent); color: white; }
 
-        .seccion-titulo {
-            color: var(--accent);
-            font-size: 1.4em;
-            margin: 30px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border);
-        }
+        .concepto-card { padding: 20px; margin-bottom: 15px; display: flex; gap: 20px; align-items: flex-start; }
+        .concepto-icono { font-size: 2.2em; min-width: 46px; text-align: center; }
+        .concepto-titulo { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-family: 'Space Grotesk', sans-serif; }
+        .concepto-desc { color: var(--text2); font-size: 0.9em; line-height: 1.6; }
 
-        .concepto-card {
-            background: var(--bg2);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
+        @media (max-width: 600px) {
+            .concepto-card { flex-direction: column; gap: 10px; }
         }
-
-        .concepto-icono {
-            font-size: 2.5em;
-            min-width: 50px;
-            text-align: center;
-        }
-
-        .concepto-titulo {
-            font-weight: bold;
-            color: var(--accent);
-            margin-bottom: 8px;
-        }
-
-        .concepto-desc {
-            color: var(--text2);
-            font-size: 0.9em;
-            line-height: 1.6;
-        }
-
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .stat-mini {
-            background: var(--bg2);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .stat-mini .numero { font-size: 1.8em; font-weight: bold; color: var(--accent); }
-        .stat-mini .label  { font-size: 0.8em; color: var(--text2); margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -213,209 +112,123 @@
 </nav>
 
 <div class="page-header">
-    <h1>Literatura Cientifica</h1>
-    <p>Estado del arte y referencias academicas que fundamentan FreshGuard</p>
+    <span class="etiqueta-tecnica" style="justify-content:center;margin-bottom:8px">Estado del arte · 7 referencias</span>
+    <h1>Literatura Científica</h1>
+    <p>Estado del arte y referencias académicas que fundamentan FreshGuard</p>
 </div>
 
 <div class="contenido">
 
-    <!-- STATS -->
     <div class="stats-row">
-        <div class="stat-mini">
-            <div class="numero">7</div>
-            <div class="label">Referencias citadas</div>
-        </div>
-        <div class="stat-mini">
-            <div class="numero">2024</div>
-            <div class="label">Paper mas reciente</div>
-        </div>
-        <div class="stat-mini">
-            <div class="numero">IEEE</div>
-            <div class="label">Principal fuente</div>
-        </div>
-        <div class="stat-mini">
-            <div class="numero">FAO</div>
-            <div class="label">Validacion formula</div>
-        </div>
+        <div class="stat-mini panel"><div class="numero">7</div><div class="label">Referencias citadas</div></div>
+        <div class="stat-mini panel"><div class="numero">2025</div><div class="label">Paper más reciente</div></div>
+        <div class="stat-mini panel"><div class="numero">IEEE</div><div class="label">Principal fuente</div></div>
+        <div class="stat-mini panel"><div class="numero">FAO</div><div class="label">Validación fórmula</div></div>
     </div>
 
-    <!-- TRABAJOS RELACIONADOS -->
     <h2 class="seccion-titulo">Trabajos Relacionados</h2>
 
-    <!-- Paper 1 -->
-    <div class="paper-card">
-        <div class="paper-numero">Paper 01 — 2024</div>
+    <div class="paper-card panel">
+        <div class="paper-numero">Paper 01 · 2024</div>
         <div class="paper-titulo">IoT-based Cost-Effective Fruit Quality Monitoring System using Electronic Nose</div>
         <div class="paper-autores">Bhattacharjee, A., Biswas, N. A., Shahriar, K. A., & Salim, K. B. (2024) — arXiv:2512.08753</div>
-        <div class="paper-tags">
-            <span class="tag">ESP32</span>
-            <span class="tag">Sensores MQ</span>
-            <span class="tag">DHT22</span>
-            <span class="tag">Indice de calidad</span>
-            <span class="tag">E-nose</span>
-        </div>
-        <div class="paper-resumen">
-            Propone un sistema IoT de monitoreo de calidad de frutas implementado sobre ESP32 con arreglo de sensores MQ (MQ-3, MQ-4, MQ-135) y DHT22 que funciona como nariz electronica. Desarrolla un indice de calidad normalizado entre 0 y 1 que clasifica la fruta en cinco categorias. El sensor MQ-135 presenta la mayor relacion senal-ruido (SNR=44.24). Costo total del sistema: aproximadamente 18 USD.
-        </div>
-        <div class="paper-relevancia">
-            <strong>Relevancia para FreshGuard:</strong> Valida el hardware base (ESP32 + sensores MQ + DHT22) y el concepto de indice de calidad compuesto. FreshGuard amplía la propuesta con MAPE-K, ciberseguridad y arquitectura Smart City.
-        </div>
-        <a href="https://arxiv.org/abs/2512.08753" target="_blank" class="paper-link">Ver paper</a>
+        <div class="paper-tags"><span class="tag">ESP32</span><span class="tag">Sensores MQ</span><span class="tag">DHT22</span><span class="tag">Índice de calidad</span><span class="tag">E-nose</span></div>
+        <div class="paper-resumen">Propone un sistema IoT de monitoreo de calidad de frutas implementado sobre ESP32 con arreglo de sensores MQ (MQ-3, MQ-4, MQ-135) y DHT22 que funciona como nariz electrónica. Desarrolla un índice de calidad normalizado entre 0 y 1 que clasifica la fruta en cinco categorías. El sensor MQ-135 presenta la mayor relación señal-ruido (SNR=44.24). Costo total del sistema: aproximadamente 18 USD.</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Valida el hardware base (ESP32 + sensores MQ + DHT22) y el concepto de índice de calidad compuesto. FreshGuard amplía la propuesta con MAPE-K, ciberseguridad y arquitectura Smart City.</div>
+        <a href="https://arxiv.org/abs/2512.08753" target="_blank" class="paper-link">Ver paper ↗</a>
     </div>
 
-    <!-- Paper 2 -->
-    <div class="paper-card">
-        <div class="paper-numero">Paper 02 — 2022</div>
+    <div class="paper-card panel">
+        <div class="paper-numero">Paper 02 · 2022</div>
         <div class="paper-titulo">Ambient Parameter Monitoring in Fresh Fruit and Vegetable Supply Chains using IoT</div>
         <div class="paper-autores">Lamberty, A., & Kreyenschmidt, J. (2022) — Foods, 11(12), 1777</div>
-        <div class="paper-tags">
-            <span class="tag">Cadena de suministro</span>
-            <span class="tag">Temperatura</span>
-            <span class="tag">Humedad</span>
-            <span class="tag">CO2</span>
-            <span class="tag">Perdidas alimentarias</span>
-        </div>
-        <div class="paper-resumen">
-            Revision sistematica sobre uso de IoT para monitoreo en cadenas de suministro de frutas y verduras. Identifica temperatura, humedad, O2 y CO2 como parametros de mayor valor. Señala que entre el 40% y 50% de la produccion global de frutas se pierde en la cadena de suministro. Valida la seleccion de sensores de FreshGuard.
-        </div>
-        <div class="paper-relevancia">
-            <strong>Relevancia para FreshGuard:</strong> Justifica la seleccion de sensores de temperatura, humedad y gases. Proporciona el dato de perdidas del 40-50% que motiva el proyecto.
-        </div>
-        <a href="https://doi.org/10.3390/foods11121777" target="_blank" class="paper-link">Ver paper</a>
+        <div class="paper-tags"><span class="tag">Cadena de suministro</span><span class="tag">Temperatura</span><span class="tag">Humedad</span><span class="tag">CO2</span><span class="tag">Pérdidas alimentarias</span></div>
+        <div class="paper-resumen">Revisión sistemática sobre uso de IoT para monitoreo en cadenas de suministro de frutas y verduras. Identifica temperatura, humedad, O2 y CO2 como parámetros de mayor valor. Señala que entre el 40% y 50% de la producción global de frutas se pierde en la cadena de suministro. Valida la selección de sensores de FreshGuard.</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Justifica la selección de sensores de temperatura, humedad y gases. Proporciona el dato de pérdidas del 40-50% que motiva el proyecto.</div>
+        <a href="https://doi.org/10.3390/foods11121777" target="_blank" class="paper-link">Ver paper ↗</a>
     </div>
 
-    <!-- Paper 3 -->
-    <div class="paper-card">
-        <div class="paper-numero">Paper 03 — 2025</div>
+    <div class="paper-card panel">
+        <div class="paper-numero">Paper 03 · 2025</div>
         <div class="paper-titulo">IoT Sensor-Based Gas Detection Device for Stored Fruits</div>
         <div class="paper-autores">Patil, B. N., Gupta, S. V., Argade, K. S., Alokkumar, & Deshmukh, M. D. (2025) — Plant Archives, 25</div>
-        <div class="paper-tags">
-            <span class="tag">MQ-135</span>
-            <span class="tag">Deteccion de gas</span>
-            <span class="tag">Frutas tropicales</span>
-            <span class="tag">Umbrales empiricos</span>
-        </div>
-        <div class="paper-resumen">
-            Validacion experimental de dispositivo IoT para deteccion de gases de deterioro en frutas almacenadas. Evaluado durante 14 dias en platano, mango, papaya y sapota. Establece umbrales empiricos: inicio de descomposicion a 4.2-6.3 ppm de etileno, temperaturas 36.5-40.2°C, humedades 43.9-47.1%.
-        </div>
-        <div class="paper-relevancia">
-            <strong>Relevancia para FreshGuard:</strong> Proporciona umbrales empiricos directamente aplicables al modulo MAPE-K. Valida el uso del MQ-135 para monitoreo continuo de frutas tropicales.
-        </div>
-        <a href="https://doi.org/10.51470/PLANTARCHIVES.2025.v25.SP.ICTPAIRS-108" target="_blank" class="paper-link">Ver paper</a>
+        <div class="paper-tags"><span class="tag">MQ-135</span><span class="tag">Detección de gas</span><span class="tag">Frutas tropicales</span><span class="tag">Umbrales empíricos</span></div>
+        <div class="paper-resumen">Validación experimental de dispositivo IoT para detección de gases de deterioro en frutas almacenadas. Evaluado durante 14 días en plátano, mango, papaya y sapota. Establece umbrales empíricos: inicio de descomposición a 4.2-6.3 ppm de etileno, temperaturas 36.5-40.2°C, humedades 43.9-47.1%.</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Proporciona umbrales empíricos directamente aplicables al módulo MAPE-K. Valida el uso del MQ-135 para monitoreo continuo de frutas tropicales.</div>
+        <a href="https://doi.org/10.51470/PLANTARCHIVES.2025.v25.SP.ICTPAIRS-108" target="_blank" class="paper-link">Ver paper ↗</a>
     </div>
 
-    <!-- Paper 4 -->
-    <div class="paper-card">
-        <div class="paper-numero">Paper 04 — 2015</div>
+    <div class="paper-card panel">
+        <div class="paper-numero">Paper 04 · 2015</div>
         <div class="paper-titulo">Internet of Things: A Survey on Enabling Technologies, Protocols, and Applications</div>
         <div class="paper-autores">Al-Fuqaha, A., Guizani, M., Mohammadi, M., Aledhari, M., & Ayyash, M. (2015) — IEEE Communications Surveys & Tutorials, 17(4)</div>
-        <div class="paper-tags">
-            <span class="tag">IoT</span>
-            <span class="tag">Protocolos</span>
-            <span class="tag">MQTT</span>
-            <span class="tag">HTTP REST</span>
-            <span class="tag">Arquitectura</span>
-        </div>
-        <div class="paper-resumen">
-            Survey fundamental sobre tecnologias habilitadoras, protocolos y aplicaciones IoT. Define la arquitectura de capas IoT, los protocolos de aplicacion mas prominentes (MQTT, HTTP REST, CoAP) y las tecnologias de red (WiFi, LoRa, Zigbee). Referencia fundamental del curso Internet de las Cosas.
-        </div>
-        <div class="paper-relevancia">
-            <strong>Relevancia para FreshGuard:</strong> Justifica la arquitectura de capas, la seleccion de HTTP REST como protocolo prototipo y la migracion planificada a MQTT sobre TLS.
-        </div>
-        <a href="https://doi.org/10.1109/COMST.2015.2444095" target="_blank" class="paper-link">Ver paper</a>
+        <div class="paper-tags"><span class="tag">IoT</span><span class="tag">Protocolos</span><span class="tag">MQTT</span><span class="tag">HTTP REST</span><span class="tag">Arquitectura</span></div>
+        <div class="paper-resumen">Survey fundamental sobre tecnologías habilitadoras, protocolos y aplicaciones IoT. Define la arquitectura de capas IoT, los protocolos de aplicación más prominentes (MQTT, HTTP REST, CoAP) y las tecnologías de red (WiFi, LoRa, Zigbee). Referencia fundamental del curso Internet de las Cosas.</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Justifica la arquitectura de capas, la selección de HTTP REST como protocolo prototipo y la migración planificada a MQTT sobre TLS.</div>
+        <a href="https://doi.org/10.1109/COMST.2015.2444095" target="_blank" class="paper-link">Ver paper ↗</a>
     </div>
 
-    <!-- Paper 5 -->
-    <div class="paper-card">
-        <div class="paper-numero">Paper 05 — 2003</div>
+    <div class="paper-card panel">
+        <div class="paper-numero">Paper 05 · 2003</div>
         <div class="paper-titulo">The Vision of Autonomic Computing</div>
         <div class="paper-autores">Kephart, J. O., & Chess, D. M. (2003) — IEEE Computer, 36(1), 41-50</div>
-        <div class="paper-tags">
-            <span class="tag">MAPE-K</span>
-            <span class="tag">Autonomic Computing</span>
-            <span class="tag">Self-managing</span>
-        </div>
-        <div class="paper-resumen">
-            Define el paradigma de Autonomic Computing y el ciclo MAPE-K (Monitor, Analyze, Plan, Execute, Knowledge) para sistemas que se gestionan a si mismos sin intervencion humana. Inspirado en el sistema nervioso autonomo del cuerpo humano.
-        </div>
-        <div class="paper-relevancia">
-            <strong>Relevancia para FreshGuard:</strong> Fundamenta el modulo de Autonomic Computing del sistema. El ciclo MAPE-K implementado en el backend Flask sigue exactamente el modelo propuesto por los autores.
-        </div>
-        <a href="https://doi.org/10.1109/MC.2003.1160055" target="_blank" class="paper-link">Ver paper</a>
+        <div class="paper-tags"><span class="tag">MAPE-K</span><span class="tag">Autonomic Computing</span><span class="tag">Self-managing</span></div>
+        <div class="paper-resumen">Define el paradigma de Autonomic Computing y el ciclo MAPE-K (Monitor, Analyze, Plan, Execute, Knowledge) para sistemas que se gestionan a sí mismos sin intervención humana. Inspirado en el sistema nervioso autónomo del cuerpo humano.</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Fundamenta el módulo de Autonomic Computing del sistema. El ciclo MAPE-K implementado en el backend Flask sigue exactamente el modelo propuesto por los autores.</div>
+        <a href="https://doi.org/10.1109/MC.2003.1160055" target="_blank" class="paper-link">Ver paper ↗</a>
     </div>
 
-    <!-- Paper 6 -->
-    <div class="paper-card">
-        <div class="paper-numero">Paper 06 — 2022</div>
+    <div class="paper-card panel">
+        <div class="paper-numero">Paper 06 · 2022</div>
         <div class="paper-titulo">A Systematic Survey of Internet of Things Frameworks for Smart City Applications</div>
         <div class="paper-autores">Peralta, J., Behardeen, A., Olivares, T., Quezada, A., Herrera, M., & Khanna, A. (2022) — Sustainable Cities and Society, 83</div>
-        <div class="paper-tags">
-            <span class="tag">Smart City</span>
-            <span class="tag">Frameworks IoT</span>
-            <span class="tag">Smart Economy</span>
-            <span class="tag">WiFi</span>
-        </div>
-        <div class="paper-resumen">
-            Survey sistematico de 57 frameworks IoT para aplicaciones Smart City. Identifica WiFi como el protocolo de red mas adoptado, la interfaz web como segunda interfaz mas usada y la entrega en tiempo real como modalidad preferida. Categoriza los dominios Smart City incluyendo Smart Economy.
-        </div>
-        <div class="paper-relevancia">
-            <strong>Relevancia para FreshGuard:</strong> Justifica el enfoque Smart City del proyecto en el dominio Smart Economy. Valida la seleccion de WiFi como tecnologia de red y el dashboard web como interfaz de aplicacion.
-        </div>
-        <a href="https://doi.org/10.1016/j.scs.2022.103949" target="_blank" class="paper-link">Ver paper</a>
+        <div class="paper-tags"><span class="tag">Smart City</span><span class="tag">Frameworks IoT</span><span class="tag">Smart Economy</span><span class="tag">WiFi</span></div>
+        <div class="paper-resumen">Survey sistemático de 57 frameworks IoT para aplicaciones Smart City. Identifica WiFi como el protocolo de red más adoptado, la interfaz web como segunda interfaz más usada y la entrega en tiempo real como modalidad preferida. Categoriza los dominios Smart City incluyendo Smart Economy.</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Justifica el enfoque Smart City del proyecto en el dominio Smart Economy. Valida la selección de WiFi como tecnología de red y el dashboard web como interfaz de aplicación.</div>
+        <a href="https://doi.org/10.1016/j.scs.2022.103949" target="_blank" class="paper-link">Ver paper ↗</a>
     </div>
 
-    <!-- Paper 7 -->
-    <div class="paper-card">
-        <div class="paper-numero">Norma 07 — 2012</div>
+    <div class="paper-card panel">
+        <div class="paper-numero">Norma 07 · 2012</div>
         <div class="paper-titulo">Recommendation ITU-T Y.2060: Overview of the Internet of Things</div>
         <div class="paper-autores">ITU-T. (2012) — International Telecommunication Union</div>
-        <div class="paper-tags">
-            <span class="tag">ITU-T Y.2060</span>
-            <span class="tag">Modelo referencia</span>
-            <span class="tag">4 capas</span>
-            <span class="tag">u-Things</span>
-        </div>
-        <div class="paper-resumen">
-            Define el modelo de referencia IoT de 4 capas: Dispositivo, Red, Apoyo a Servicios y Aplicacion, con capacidades transversales de Gestion y Seguridad. Define conceptos fundamentales como u-Things (cosas fisicas con tecnologia embebida) y e-Things (cosas virtuales).
-        </div>
-        <div class="paper-relevancia">
-            <strong>Relevancia para FreshGuard:</strong> Marco conceptual principal del proyecto. La arquitectura de FreshGuard sigue exactamente el modelo ITU-T Y.2060 en sus tres capas implementadas.
-        </div>
-        <a href="https://www.itu.int/rec/T-REC-Y.2060-201206-I" target="_blank" class="paper-link">Ver norma</a>
+        <div class="paper-tags"><span class="tag">ITU-T Y.2060</span><span class="tag">Modelo referencia</span><span class="tag">4 capas</span><span class="tag">u-Things</span></div>
+        <div class="paper-resumen">Define el modelo de referencia IoT de 4 capas: Dispositivo, Red, Apoyo a Servicios y Aplicación, con capacidades transversales de Gestión y Seguridad. Define conceptos fundamentales como u-Things (cosas físicas con tecnología embebida) y e-Things (cosas virtuales).</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Marco conceptual principal del proyecto. La arquitectura de FreshGuard sigue exactamente el modelo ITU-T Y.2060 en sus tres capas implementadas.</div>
+        <a href="https://www.itu.int/rec/T-REC-Y.2060-201206-I" target="_blank" class="paper-link">Ver norma ↗</a>
     </div>
 
-    <!-- CONCEPTOS CLAVE -->
     <h2 class="seccion-titulo">Conceptos Clave</h2>
 
-    <div class="concepto-card">
+    <div class="concepto-card panel">
         <div class="concepto-icono">🌐</div>
         <div>
             <div class="concepto-titulo">Internet de las Cosas (IoT)</div>
-            <div class="concepto-desc">Infraestructura mundial para la sociedad de la informacion que propicia la prestacion de servicios avanzados mediante la interconexion de objetos fisicos y virtuales, aprovechando las capacidades de identificacion, adquisicion de datos, procesamiento y comunicacion. (ITU-T Y.2060, 2012)</div>
+            <div class="concepto-desc">Infraestructura mundial para la sociedad de la información que propicia la prestación de servicios avanzados mediante la interconexión de objetos físicos y virtuales, aprovechando las capacidades de identificación, adquisición de datos, procesamiento y comunicación. (ITU-T Y.2060, 2012)</div>
         </div>
     </div>
 
-    <div class="concepto-card">
+    <div class="concepto-card panel">
         <div class="concepto-icono">🤖</div>
         <div>
             <div class="concepto-titulo">Autonomic Computing — MAPE-K</div>
-            <div class="concepto-desc">Paradigma donde el sistema se gestiona a si mismo sin intervencion humana mediante el ciclo Monitor-Analyze-Plan-Execute con base de conocimiento Knowledge. Inspirado en el sistema nervioso autonomo. (Kephart & Chess, 2003)</div>
+            <div class="concepto-desc">Paradigma donde el sistema se gestiona a sí mismo sin intervención humana mediante el ciclo Monitor-Analyze-Plan-Execute con base de conocimiento Knowledge. Inspirado en el sistema nervioso autónomo. (Kephart & Chess, 2003)</div>
         </div>
     </div>
 
-    <div class="concepto-card">
+    <div class="concepto-card panel">
         <div class="concepto-icono">🏙️</div>
         <div>
             <div class="concepto-titulo">Smart City — Smart Economy</div>
-            <div class="concepto-desc">FreshGuard se enmarca en el dominio Smart Economy de Smart City, aplicado a la optimizacion de la cadena de frio urbana. Entre el 40-50% de la produccion global de frutas se pierde en la cadena de suministro — FreshGuard reduce estas perdidas mediante monitoreo continuo. (Peralta et al., 2022)</div>
+            <div class="concepto-desc">FreshGuard se enmarca en el dominio Smart Economy de Smart City, aplicado a la optimización de la cadena de frío urbana. Entre el 40-50% de la producción global de frutas se pierde en la cadena de suministro — FreshGuard reduce estas pérdidas mediante monitoreo continuo. (Peralta et al., 2022)</div>
         </div>
     </div>
 
-    <div class="concepto-card">
+    <div class="concepto-card panel">
         <div class="concepto-icono">🔬</div>
         <div>
-            <div class="concepto-titulo">Indice de Frescura — Validacion FAO</div>
-            <div class="concepto-desc">Metrica compuesta validada con literatura FAO que combina CO2 (30%), Etanol (40%), Temperatura (15%) y Humedad (15%). Los umbrales de temperatura (18°C) y humedad (85%) siguen recomendaciones FAO para frutas tropicales climatéricas como platano, mango y papaya.</div>
+            <div class="concepto-titulo">Índice de Frescura — Validación FAO</div>
+            <div class="concepto-desc">Métrica compuesta validada con literatura FAO que combina CO2 (30%), Etanol (40%), Temperatura (15%) y Humedad (15%). Los umbrales de temperatura (18°C) y humedad (85%) siguen recomendaciones FAO para frutas tropicales climatéricas como plátano, mango y papaya.</div>
         </div>
     </div>
 
@@ -430,20 +243,15 @@ function toggleTheme() {
     const html = document.documentElement;
     const btn  = document.querySelector('.theme-btn');
     if (html.getAttribute('data-theme') === 'light') {
-        html.setAttribute('data-theme', 'dark');
-        btn.textContent = 'Modo Claro';
-        localStorage.setItem('theme', 'dark');
+        html.setAttribute('data-theme', 'dark'); btn.textContent = 'Modo Claro'; localStorage.setItem('theme', 'dark');
     } else {
-        html.setAttribute('data-theme', 'light');
-        btn.textContent = 'Modo Oscuro';
-        localStorage.setItem('theme', 'light');
+        html.setAttribute('data-theme', 'light'); btn.textContent = 'Modo Oscuro'; localStorage.setItem('theme', 'light');
     }
 }
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme);
-    document.querySelector('.theme-btn').textContent =
-        savedTheme === 'dark' ? 'Modo Claro' : 'Modo Oscuro';
+    document.querySelector('.theme-btn').textContent = savedTheme === 'dark' ? 'Modo Claro' : 'Modo Oscuro';
 }
 </script>
 
