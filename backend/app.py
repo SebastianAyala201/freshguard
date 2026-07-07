@@ -185,6 +185,10 @@ def literatura():
 def obtener_estado():
     return jsonify(datos_actuales), 200
 
+@app.route('/api/nodos', methods=['GET'])
+def obtener_nodos():
+    return jsonify(nodos_activos), 200
+
 @app.route('/api/historial', methods=['GET'])
 def obtener_historial():
     lecturas = Lectura.query.order_by(Lectura.id.desc()).limit(50).all()
