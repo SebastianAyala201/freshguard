@@ -112,7 +112,7 @@
 </nav>
 
 <div class="page-header">
-    <span class="etiqueta-tecnica" style="justify-content:center;margin-bottom:8px">Estado del arte · 7 referencias</span>
+    <span class="etiqueta-tecnica" style="justify-content:center;margin-bottom:8px">Estado del arte · 8 referencias</span>
     <h1>Literatura Científica</h1>
     <p>Estado del arte y referencias académicas que fundamentan FreshGuard</p>
 </div>
@@ -120,8 +120,8 @@
 <div class="contenido">
 
     <div class="stats-row">
-        <div class="stat-mini panel"><div class="numero">7</div><div class="label">Referencias citadas</div></div>
-        <div class="stat-mini panel"><div class="numero">2025</div><div class="label">Paper más reciente</div></div>
+        <div class="stat-mini panel"><div class="numero">8</div><div class="label">Referencias citadas</div></div>
+        <div class="stat-mini panel"><div class="numero">2026</div><div class="label">Paper más reciente</div></div>
         <div class="stat-mini panel"><div class="numero">IEEE</div><div class="label">Principal fuente</div></div>
         <div class="stat-mini panel"><div class="numero">FAO</div><div class="label">Validación fórmula</div></div>
     </div>
@@ -189,7 +189,17 @@
     </div>
 
     <div class="paper-card panel">
-        <div class="paper-numero">Norma 07 · 2012</div>
+        <div class="paper-numero">Paper 07 · 2026</div>
+        <div class="paper-titulo">An Interpretable Agent-Assisted Pipeline for Statistical Anomaly Detection in IoT Temperature Time Series</div>
+        <div class="paper-autores">Pires, L. M., & Vasconcelos, J. B. de (2026) — Electronics, 15(9), 1840</div>
+        <div class="paper-tags"><span class="tag">Z-score</span><span class="tag">Detección de anomalías</span><span class="tag">Edge computing</span><span class="tag">Interpretabilidad</span></div>
+        <div class="paper-resumen">Evalúa tres filtros estadísticos clásicos — Hampel, Rango Intercuartílico (IQR) y Z-score — para detectar anomalías en series temporales de temperatura IoT en entornos de borde con recursos limitados. Los autores destacan que el Z-score, pese a depender de la estabilidad de la varianza, sigue siendo un método base ampliamente usado por su simplicidad y bajo costo computacional frente a alternativas de machine learning como Isolation Forest u OC-SVM.</div>
+        <div class="paper-relevancia"><strong>Relevancia para FreshGuard:</strong> Valida la elección de Z-score sobre el Índice de Frescura como método interpretable y de bajo costo, apropiado para un backend Flask desplegado en un servicio de nube gratuito, sin necesidad de librerías de ML adicionales.</div>
+        <a href="https://doi.org/10.3390/electronics15091840" target="_blank" class="paper-link">Ver paper ↗</a>
+    </div>
+
+    <div class="paper-card panel">
+        <div class="paper-numero">Norma 08 · 2012</div>
         <div class="paper-titulo">Recommendation ITU-T Y.2060: Overview of the Internet of Things</div>
         <div class="paper-autores">ITU-T. (2012) — International Telecommunication Union</div>
         <div class="paper-tags"><span class="tag">ITU-T Y.2060</span><span class="tag">Modelo referencia</span><span class="tag">4 capas</span><span class="tag">u-Things</span></div>
@@ -229,6 +239,14 @@
         <div>
             <div class="concepto-titulo">Índice de Frescura — Validación FAO</div>
             <div class="concepto-desc">Métrica compuesta validada con literatura FAO que combina CO2 (30%), Etanol (40%), Temperatura (15%) y Humedad (15%). Los umbrales de temperatura (18°C) y humedad (85%) siguen recomendaciones FAO para frutas tropicales climatéricas como plátano, mango y papaya.</div>
+        </div>
+    </div>
+
+    <div class="concepto-card panel">
+        <div class="concepto-icono">📉</div>
+        <div>
+            <div class="concepto-titulo">Detección de Anomalías — Z-score</div>
+            <div class="concepto-desc">Compara cada nueva lectura contra la media y desviación estándar de las últimas 50 lecturas guardadas en SQLite. Si se aleja más de 2.5 desviaciones estándar, se marca como anómala — método estadístico simple, interpretable y de bajo costo computacional. (Pires & Vasconcelos, 2026)</div>
         </div>
     </div>
 

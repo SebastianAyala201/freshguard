@@ -7,8 +7,8 @@
 #define MQ135_PIN 34
 #define MQ3_PIN 32
 
-const char* ssid      = "PortugalCampeon2026";
-const char* password  = "sebas123";
+const char* ssid      = "SEBAS";
+const char* password  = "MateSebas";
 const char* serverURL = "https://freshguard-0ibl.onrender.com/api/datos";
 const char* apiKey    = "freshguard-2026-unmsm";
 
@@ -21,27 +21,6 @@ int leerSensor(int pin) {
     delay(10);
   }
   return suma / 10;
-}
-
-String calcularAlerta(int mq135, int mq3) {
-  if (mq135 > 700 || mq3 > 700) return "CRITICO";
-  if (mq135 > 450 || mq3 > 450) return "ADVERTENCIA";
-  return "NORMAL";
-}
-
-float calcularIndiceFrescura(float temp, float hum, int mq135, int mq3) {
-  float co2_norm    = constrain(map(mq135, 0, 4095, 0, 100), 0, 100);
-  float etanol_norm = constrain(map(mq3,   0, 4095, 0, 100), 0, 100);
-  float temp_pen    = constrain((temp - 25) * 5, 0, 100);
-  float hum_pen     = constrain((hum  - 70) * 3, 0, 100);
-
-  float indice = 100 - (
-    co2_norm    * 0.35 +
-    etanol_norm * 0.35 +
-    temp_pen    * 0.15 +
-    hum_pen     * 0.15
-  );
-  return constrain(indice, 0, 100);
 }
 
 void setup() {
@@ -63,18 +42,23 @@ void setup() {
 void loop() {
   float temp = dht.readTemperature();
   float hum  = dht.readHumidity();
-  int mq135  = leerSensor(MQ135_PIN);
-  int mq3    = leerSensor(MQ3_PIN);
-  String alerta = calcularAlerta(mq135, mq3);
-  float indice  = calcularIndiceFrescura(temp, hum, mq135, mq3);
+
+  // Proteccion: el DHT22 a veces falla una lectura (timing, cable, ruido).
+  // Si eso pasa, nos saltamos este ciclo en vez de mandar un JSON invalido.
+  if (isnan(temp) || isnan(hum)) {
+    Serial.println("⚠️ Lectura DHT22 fallida, reintentando en el siguiente ciclo...");
+    delay(3000);
+    return;
+  }
+
+  int mq135 = leerSensor(MQ135_PIN);
+  int mq3   = leerSensor(MQ3_PIN);
 
   Serial.println("==================");
   Serial.print("Temperatura: "); Serial.println(temp);
   Serial.print("Humedad: ");     Serial.println(hum);
   Serial.print("MQ-135: ");      Serial.println(mq135);
   Serial.print("MQ-3: ");        Serial.println(mq3);
-  Serial.print("Indice Frescura: "); Serial.println(indice);
-  Serial.println("Alerta: " + alerta);
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
@@ -82,13 +66,14 @@ void loop() {
     http.addHeader("Content-Type", "application/json");
     http.addHeader("X-API-Key", apiKey);
 
+    // El indice y la alerta ya no se calculan aqui: el backend los recalcula
+    // con sus propios umbrales (config.py), asi que solo mandamos los datos
+    // crudos de los sensores. Menos codigo, menos que explicar.
     String json = "{";
-    json += "\"temperatura\":"    + String(temp)   + ",";
-    json += "\"humedad\":"        + String(hum)    + ",";
-    json += "\"mq135\":"          + String(mq135)  + ",";
-    json += "\"mq3\":"            + String(mq3)    + ",";
-    json += "\"indice_frescura\":" + String(indice) + ",";
-    json += "\"alerta\":\""       + alerta + "\"";
+    json += "\"temperatura\":" + String(temp) + ",";
+    json += "\"humedad\":"     + String(hum)  + ",";
+    json += "\"mq135\":"       + String(mq135) + ",";
+    json += "\"mq3\":"         + String(mq3);
     json += "}";
 
     int httpCode = http.POST(json);

@@ -107,6 +107,15 @@
         .alerta-box.NORMAL       { background: linear-gradient(135deg, #1b5e20, #2e7d32); }
         .alerta-box.SINDATOS     { background: linear-gradient(135deg, #607d8b, #78909c); }
 
+        /* INDICADOR DE ANOMALIA (Z-score) — oculto por defecto, se prende con JS/Jinja */
+        .anomalia-badge {
+            max-width: 1000px; margin: -10px auto 20px auto; padding: 12px 18px; border-radius: 12px;
+            display: flex; align-items: center; gap: 10px; justify-content: center;
+            background: rgba(198,40,40,0.1); border: 1.5px dashed var(--critico);
+            color: var(--critico); font-weight: 600; font-size: 0.92em;
+            font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
+        }
+
         /* PANEL DEL INDICE — dial semicircular en vez de barra lineal */
         .indice-box { max-width: 1000px; margin: 0 auto 25px auto; padding: 25px; text-align: center; }
         .indice-titulo { color: var(--text2); font-size: 0.85em; margin-bottom: 4px; font-family: 'Inter', sans-serif; }
@@ -148,6 +157,12 @@
         .badge.NORMAL      { background: var(--accent); }
         .badge.ADVERTENCIA { background: var(--ambar); }
         .badge.CRITICO     { background: var(--critico); }
+
+        .badge-anomalia {
+            display: inline-block; margin-top: 5px; padding: 2px 9px; border-radius: 12px;
+            font-size: 0.68em; font-weight: 700; color: white; background: var(--critico);
+            font-family: 'JetBrains Mono', monospace;
+        }
 
         #mapa { height: 300px; border-radius: 10px; margin-top: 10px; }
 
@@ -201,6 +216,11 @@
     {% elif datos.alerta == 'ADVERTENCIA' %}Estado ADVERTENCIA — Inicio de deterioro detectado
     {% elif datos.alerta == 'NORMAL' %}Estado NORMAL — Condiciones óptimas de conservación
     {% else %}Esperando datos del sensor...{% endif %}
+</div>
+
+<!-- INDICADOR DE ANOMALIA — Z-score, oculto salvo que el backend marque anomalia:true -->
+<div id="anomaliaBadge" class="anomalia-badge" style="display:{{ 'flex' if datos.anomalia else 'none' }}">
+    ⚠️ Anomalía detectada — la lectura actual se aleja del comportamiento histórico (Z-score)
 </div>
 
 <!-- INDICE DE FRESCURA — dial semicircular, elemento firma del sitio -->
@@ -258,6 +278,7 @@
                     <div style="margin-top:5px;font-size:0.85em;color:var(--text2)">
                         {{ nodo.temperatura }}°C &nbsp; {{ nodo.humedad }}% &nbsp; IF: {{ nodo.indice_frescura }}
                     </div>
+                    {% if nodo.anomalia %}<span class="badge-anomalia">⚠️ ANOMALÍA</span>{% endif %}
                 </div>
                 <div style="text-align:center">
                     <span class="badge {{ nodo.alerta }}">{{ nodo.alerta }}</span>
@@ -360,6 +381,7 @@ function pintarMapaYLista(nodosDict) {
                 <div style="margin-top:5px;font-size:0.85em;color:var(--text2)">
                     ${n.temperatura}°C &nbsp; ${n.humedad}% &nbsp; IF: ${n.indice_frescura}
                 </div>
+                ${n.anomalia ? '<span class="badge-anomalia">⚠️ ANOMALÍA</span>' : ''}
             </div>
             <div style="text-align:center">
                 <span class="badge ${n.alerta}">${n.alerta}</span>
@@ -450,6 +472,9 @@ async function actualizarDashboard() {
             : estadoValido === 'ADVERTENCIA' ? 'Estado ADVERTENCIA — Inicio de deterioro detectado'
             : estadoValido === 'NORMAL' ? 'Estado NORMAL — Condiciones óptimas de conservación'
             : 'Esperando datos del sensor...';
+
+        // Indicador de anomalía (Z-score) — se prende/apaga según lo que mande el backend
+        document.getElementById('anomaliaBadge').style.display = estado.anomalia ? 'flex' : 'none';
 
         document.getElementById('indiceValor').textContent = estado.indice_frescura;
         document.getElementById('etapaTxt').textContent = estado.etapa || 'Sin datos';

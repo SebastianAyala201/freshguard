@@ -15,6 +15,7 @@
             /* fondos suaves de las tarjetas de capas/MAPE-K, con variante dark abajo */
             --capa-percepcion-bg: #e8f5e9; --capa-red-bg: #e3f2fd; --capa-aplicacion-bg: #fff8e1;
             --mapek-M-bg: #e3f2fd; --mapek-A-bg: #fff8e1; --mapek-P-bg: #fce4ec; --mapek-E-bg: #e8f5e9; --mapek-K-bg: #f3e5f5;
+            --self-C-bg: #e3f2fd; --self-H-bg: #e8f5e9; --self-O-bg: #f3e5f5; --self-P-bg: #fff3e0;
             --capa-text: #16231C;
         }
         :root[data-theme="dark"] {
@@ -24,12 +25,13 @@
             --border: #234433; --shadow: 0 4px 20px rgba(0,0,0,0.35);
             --capa-percepcion-bg: #16321f; --capa-red-bg: #12283a; --capa-aplicacion-bg: #33280e;
             --mapek-M-bg: #12283a; --mapek-A-bg: #33280e; --mapek-P-bg: #331416; --mapek-E-bg: #16321f; --mapek-K-bg: #2a1830;
+            --self-C-bg: #12283a; --self-H-bg: #16321f; --self-O-bg: #2a1830; --self-P-bg: #33280e;
             --capa-text: #E7F1EA;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s; }
         body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
         h1, h2 { font-family: 'Space Grotesk', sans-serif; }
-        .sensor-id, .mapek-letra, .sensor-specs span, th, td.mono { font-family: 'JetBrains Mono', monospace; }
+        .sensor-id, .mapek-letra, .self-letra, .sensor-specs span, th, td.mono { font-family: 'JetBrains Mono', monospace; }
         a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
         .etiqueta-tecnica {
@@ -119,6 +121,19 @@
         .mapek-letra { font-size: 2em; font-weight: 600; margin-bottom: 5px; }
         .mapek-nombre { font-weight: 600; margin-bottom: 8px; font-size: 0.95em; font-family: 'Space Grotesk', sans-serif; }
         .mapek-desc { font-size: 0.8em; color: var(--capa-text); opacity: 0.75; line-height: 1.5; }
+
+        /* PROPIEDADES AUTONOMICAS (Self-*) — mismo lenguaje visual que MAPE-K */
+        .self-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; }
+        .self-card { border-radius: 12px; padding: 20px; border: 2px solid; color: var(--capa-text); }
+        .self-C { background: var(--self-C-bg); border-color: var(--azul); }
+        .self-H { background: var(--self-H-bg); border-color: var(--accent); }
+        .self-O { background: var(--self-O-bg); border-color: var(--morado); }
+        .self-P { background: var(--self-P-bg); border-color: var(--ambar); }
+        .self-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .self-letra { font-size: 1.4em; font-weight: 700; }
+        .self-nombre { font-weight: 600; font-size: 0.98em; font-family: 'Space Grotesk', sans-serif; }
+        .self-desc { font-size: 0.82em; color: var(--capa-text); opacity: 0.8; line-height: 1.55; }
+        .self-desc code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 4px; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.9em; margin-top: 15px; }
         th {
@@ -242,10 +257,34 @@
         <img src="/static/img/diagrama-mapek.png" alt="MAPE-K" class="img-center">
         <div class="mapek-grid">
             <div class="mapek-card mapek-M"><div class="mapek-letra" style="color:var(--azul)">M</div><div class="mapek-nombre">Monitor</div><div class="mapek-desc">ESP32 lee sensores cada 3 segundos y envía datos al servidor</div></div>
-            <div class="mapek-card mapek-A"><div class="mapek-letra" style="color:var(--ambar)">A</div><div class="mapek-nombre">Analyze</div><div class="mapek-desc">Backend calcula Índice de Frescura y detecta anomalías</div></div>
-            <div class="mapek-card mapek-P"><div class="mapek-letra" style="color:var(--critico)">P</div><div class="mapek-nombre">Plan</div><div class="mapek-desc">Determina nivel de alerta: Normal, Advertencia o Crítico</div></div>
+            <div class="mapek-card mapek-A"><div class="mapek-letra" style="color:var(--ambar)">A</div><div class="mapek-nombre">Analyze</div><div class="mapek-desc">Backend calcula Índice de Frescura y detecta anomalías con Z-score</div></div>
+            <div class="mapek-card mapek-P"><div class="mapek-letra" style="color:var(--critico)">P</div><div class="mapek-nombre">Plan</div><div class="mapek-desc">Determina nivel de alerta con umbrales independientes por sensor (MQ-135 / MQ-3)</div></div>
             <div class="mapek-card mapek-E"><div class="mapek-letra" style="color:var(--accent)">E</div><div class="mapek-nombre">Execute</div><div class="mapek-desc">Actualiza dashboard automáticamente sin intervención humana</div></div>
-            <div class="mapek-card mapek-K"><div class="mapek-letra" style="color:var(--morado)">K</div><div class="mapek-nombre">Knowledge</div><div class="mapek-desc">Umbrales y reglas en config.py basados en literatura FAO</div></div>
+            <div class="mapek-card mapek-K"><div class="mapek-letra" style="color:var(--morado)">K</div><div class="mapek-nombre">Knowledge</div><div class="mapek-desc">Umbrales y reglas en config.py basados en literatura FAO y Patil et al. (2025)</div></div>
+        </div>
+    </div>
+
+    <!-- PROPIEDADES AUTONOMICAS -->
+    <div class="seccion panel">
+        <h2>Propiedades Autonómicas (Self-*)</h2>
+        <p style="margin-top:15px">Más allá del ciclo MAPE-K, FreshGuard implementa las cuatro propiedades clásicas de Autonomic Computing definidas por Kephart y Chess (2003).</p>
+        <div class="self-grid">
+            <div class="self-card self-C">
+                <div class="self-header"><span class="self-letra" style="color:var(--azul)">C</span><span class="self-nombre">Self-Configuration</span></div>
+                <div class="self-desc">Un nodo ESP32 nuevo se registra automáticamente en <code>nodos_activos</code> la primera vez que envía datos válidos — no requiere alta manual en el servidor.</div>
+            </div>
+            <div class="self-card self-H">
+                <div class="self-header"><span class="self-letra" style="color:var(--accent)">H</span><span class="self-nombre">Self-Healing</span></div>
+                <div class="self-desc">Una IP bloqueada por exceso de rechazos se desbloquea sola al expirar el tiempo de bloqueo (5 min), sin intervención humana.</div>
+            </div>
+            <div class="self-card self-O">
+                <div class="self-header"><span class="self-letra" style="color:var(--morado)">O</span><span class="self-nombre">Self-Optimization</span></div>
+                <div class="self-desc">El log de seguridad se autogestiona en memoria con un tamaño máximo fijo, evitando degradar el rendimiento del servidor con el tiempo. Ampliarlo (ej. ajuste automático de umbrales) queda como trabajo futuro.</div>
+            </div>
+            <div class="self-card self-P">
+                <div class="self-header"><span class="self-letra" style="color:var(--ambar)">P</span><span class="self-nombre">Self-Protection</span></div>
+                <div class="self-desc">Rate limiting anti-DoS + bloqueo automático de IPs con rechazos repetidos, sin que un administrador tenga que intervenir manualmente.</div>
+            </div>
         </div>
     </div>
 
@@ -265,14 +304,16 @@
 
     <!-- SEGURIDAD -->
     <div class="seccion panel">
-        <h2>Ciberseguridad</h2>
+        <h2>Ciberseguridad (STRIDE)</h2>
         <p style="margin-top:15px">La seguridad opera como capacidad transversal en toda la arquitectura según el modelo ITU-T Y.2060.</p>
         <table>
-            <tr><th>Mecanismo</th><th>Implementación</th><th>Estado</th></tr>
-            <tr><td>Autenticación</td><td>API Key en header X-API-Key</td><td class="estado-txt ok">Implementado</td></tr>
-            <tr><td>Control de acceso</td><td>HTTP 401 ante clave inválida</td><td class="estado-txt ok">Implementado</td></tr>
-            <tr><td>Cifrado TLS</td><td>MQTT sobre TLS</td><td class="estado-txt pendiente">Trabajo futuro</td></tr>
-            <tr><td>Rate limiting</td><td>Límite de peticiones por nodo</td><td class="estado-txt pendiente">Trabajo futuro</td></tr>
+            <tr><th>Mecanismo</th><th>Implementación</th><th>Cubre (STRIDE)</th><th>Estado</th></tr>
+            <tr><td>Autenticación</td><td>API Key en header X-API-Key</td><td>Spoofing</td><td class="estado-txt ok">Implementado</td></tr>
+            <tr><td>Control de acceso</td><td>HTTP 401 ante clave inválida</td><td>Tampering</td><td class="estado-txt ok">Implementado</td></tr>
+            <tr><td>Rate limiting</td><td>Máx. 100 peticiones/min por IP → HTTP 429</td><td>Denial of Service</td><td class="estado-txt ok">Implementado</td></tr>
+            <tr><td>Log de seguridad</td><td>IP + timestamp + motivo por cada rechazo</td><td>Repudiation</td><td class="estado-txt ok">Implementado</td></tr>
+            <tr><td>Bloqueo automático</td><td>IP bloqueada 5 min tras 5 rechazos seguidos</td><td>Denial of Service / Elevation of Privilege</td><td class="estado-txt ok">Implementado</td></tr>
+            <tr><td>Cifrado TLS</td><td>HTTPS ya activo vía Render; MQTT sobre TLS pendiente</td><td>Information Disclosure</td><td class="estado-txt pendiente">Trabajo futuro</td></tr>
         </table>
         <img src="/static/img/http-vs-mqtt.png" alt="HTTP vs MQTT" class="img-center" style="margin-top:20px">
     </div>
