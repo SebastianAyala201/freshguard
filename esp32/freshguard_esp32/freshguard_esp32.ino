@@ -14,6 +14,9 @@ const char* apiKey    = "freshguard-2026-unmsm";
 
 DHT dht(DHTPIN, DHTTYPE);
 
+int fallosConsecutivos = 0;
+const int MAX_FALLOS_ANTES_DE_REINICIAR = 8;
+
 int leerSensor(int pin) {
   long suma = 0;
   for (int i = 0; i < 10; i++) {
@@ -60,9 +63,19 @@ void loop() {
   Serial.print("MQ-135: ");      Serial.println(mq135);
   Serial.print("MQ-3: ");        Serial.println(mq3);
 
+  // Self-Healing a nivel de red: si el WiFi se cayo, reintenta reconectar
+  // antes de intentar mandar datos.
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("⚠️ WiFi desconectado, reconectando...");
+    WiFi.reconnect();
+    delay(2000);
+  }
+
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(serverURL);
+    http.setConnectTimeout(10000);   // 10s para conectar (antes ~5s por defecto)
+    http.setTimeout(10000);          // 10s para recibir respuesta
     http.addHeader("Content-Type", "application/json");
     http.addHeader("X-API-Key", apiKey);
 
@@ -77,8 +90,25 @@ void loop() {
     json += "}";
 
     int httpCode = http.POST(json);
-    Serial.print("Servidor: "); Serial.println(httpCode);
+    Serial.print("Servidor: "); Serial.print(httpCode);
+    Serial.print(" | Heap libre: "); Serial.println(ESP.getFreeHeap());
     http.end();
+
+    // Self-Healing: si fallan varias peticiones seguidas (probable
+    // fragmentacion de memoria tras muchas conexiones HTTPS), el ESP32
+    // se reinicia solo. Un reinicio limpia la memoria y reconecta desde
+    // cero, sin necesitar intervencion humana.
+    if (httpCode > 0) {
+      fallosConsecutivos = 0;
+    } else {
+      fallosConsecutivos++;
+      Serial.print("Fallos consecutivos: "); Serial.println(fallosConsecutivos);
+      if (fallosConsecutivos >= MAX_FALLOS_ANTES_DE_REINICIAR) {
+        Serial.println("⚠️ Demasiados fallos seguidos, reiniciando ESP32...");
+        delay(500);
+        ESP.restart();
+      }
+    }
   }
 
   delay(3000);
